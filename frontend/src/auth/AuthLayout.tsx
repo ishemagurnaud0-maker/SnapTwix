@@ -13,8 +13,8 @@ const isAuthenticated = false;
       </section>
 
         <img 
-          src="/assets/"
-          alt="auth"
+          src="/assets/images/download (1).jpg"
+          alt="logo"
           className='hidden xl:block h-screen w-1/2 object-cover bg-no-repeat'
           />
       </>
