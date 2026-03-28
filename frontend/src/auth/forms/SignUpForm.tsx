@@ -1,9 +1,9 @@
 
 import * as z from "zod"
-import { useForm } from "react-hook-form"
+import { useForm,Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import {Button} from '@components/ui/Button';
-import {Form,FormControl,FormDescription,FormField,FormItem,FormLabel,FormMessage} from '@components/ui/Form';
+import {Button} from '@/components/ui/Button';
+import {Form,FormControl,FormDescription,FormField,FormItem,FormLabel,FormMessage} from '@/components/ui/Form';
 
   const formSchema = z.object({
   title: z
@@ -19,6 +19,7 @@ import {Form,FormControl,FormDescription,FormField,FormItem,FormLabel,FormMessag
 const SignUpForm = () => {
       const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: "onChange",
     defaultValues: {
       title: "",
       description: "",
