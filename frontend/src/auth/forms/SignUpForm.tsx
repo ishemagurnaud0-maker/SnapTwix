@@ -7,6 +7,7 @@ import {Form,FormControl,FormField,FormItem,FormLabel,FormMessage} from '@/compo
 import { Input } from "@/components/ui/Input";
 import { SignUpValidation } from "@/lib/validations";
 import Loader from "@/components/shared/Loader";
+import { Link } from 'react-router-dom';
 
   
 
@@ -17,6 +18,7 @@ const isLoading = false;
     resolver: zodResolver(SignUpValidation),
     mode: "onChange",
     defaultValues: {
+      name:"",
       username: "",
       email: "",
       password: "",
@@ -32,9 +34,22 @@ const isLoading = false;
     <Form {...form}>
       <div className="flex flex-col items-center justify-center min-h-screen p-2">
         <img src="/assets/images/logo.png" alt="logo" className="w-48 h-46 " />
-        <h2 className="h3-bold md:h2-bold pt-5 sm:pt-12">Sign Up to SnapTwix</h2> 
-        <p className="text-light-3 small-medium md:base-regular mt-12">Enter your account details to get started</p>
+        <h2 className="h3-bold md:h2-bold pt-1 sm:pt-3">Sign Up to SnapTwix</h2> 
+        <p className="text-light-3 small-medium md:base-regular mt-1">Enter your account details to get started</p>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5 w-full mt-4">
+           <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input type="text" className="shad-input" {...field} />
+                  </FormControl>
+                  <FormMessage className="text-red-600 text-sm font-medium" />
+                </FormItem>
+              )}
+            />
             
             <FormField
               control={form.control}
@@ -82,6 +97,9 @@ const isLoading = false;
                   </div>  
                ) : "Sign Up"}
                </Button>
+               <p className="text-light-3 text-center">
+                Already have an account? <Link to="/sign-in" className="text-primary-500">Sign in</Link>
+               </p>
           </form>
       </div>
     </Form>
