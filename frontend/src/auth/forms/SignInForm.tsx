@@ -9,7 +9,8 @@ import { SignUpValidation } from "@/lib/validations";
 import Loader from "@/components/shared/Loader";
 import { Link } from 'react-router-dom';
 
-const form = useForm<z.infer<typeof SignUpValidation>>({
+const SignInForm = () => {
+  const form = useForm<z.infer<typeof SignUpValidation>>({
     resolver: zodResolver(SignUpValidation),
     mode: "onChange",
     defaultValues: {
@@ -19,9 +20,6 @@ const form = useForm<z.infer<typeof SignUpValidation>>({
       password: "",
     },
   })
- 
-
-const SignInForm = () => {
   const isLoading = false;
 
   function onSubmit(data:z.infer<typeof SignUpValidation>){

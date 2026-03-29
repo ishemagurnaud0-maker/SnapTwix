@@ -27,7 +27,7 @@ const createUserAccount = async(user:INewUser) => {
             imageUrl: avatarUrl,
         });
 
-        return newAccount;
+        return newUser;
         
     } catch (err:any) {
         if(err.code ===409){
@@ -66,7 +66,17 @@ const saveUserToDb = async(user:{accountId:string,username?:string,name:string,e
 }
 
 
+const signInUser = async(user:{email:string,password:string}) => {
+    try{
+    const {email,password} = user;
+        const session = await account.createEmailPasswordSession(email,password);
+        return session;
+   
+}catch(err){
+    console.log("Error happened establishing session",err);
+    }
+} 
 
 
-export { createUserAccount };
-export { saveUserToDb };
+
+export { createUserAccount,signInUser}

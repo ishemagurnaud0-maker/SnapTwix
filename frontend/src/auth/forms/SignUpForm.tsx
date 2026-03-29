@@ -1,5 +1,5 @@
   import * as z from 'zod';
-
+import {useToast} from '@/hooks/use-toast';
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {Button} from '@/components/ui/Button';
@@ -9,10 +9,16 @@ import { SignUpValidation } from "@/lib/validations";
 import Loader from "@/components/shared/Loader";
 import { Link } from 'react-router-dom';
 
+import { useCreateUserAccount,useSignInAccount } from '@/lib/react-query/queries&Mutations';
+
   
 
 const SignUpForm = () => {
-const isLoading = false;
+  const {toast} = useToast();
+
+  const {mutateAsync: createUserAccount, isLoading:isCreatingUser} = useCreateUserAccount();
+  const {mutateAsync: signInUser, isLoading:isSigningIn} = useSignInAccount();
+
 
       const form = useForm<z.infer<typeof SignUpValidation>>({
     resolver: zodResolver(SignUpValidation),
@@ -25,9 +31,34 @@ const isLoading = false;
     },
   })
  
-  function onSubmit(data: z.infer<typeof SignUpValidation>) {
-    // Do something with the form values.
-    console.log(data)
+   async function onSubmit(data: z.infer<typeof SignUpValidation>) {
+    //CREATE NEW USER 
+    try{
+        const newUser = await createUserAccount(data);
+
+      if(!newUser){
+        return toast({
+          title: "Sign up failed. Please try again",
+        })
+      }
+
+       // const session = await signInAccount(data);
+        const session = await signInUser({
+          email:data.email,
+          password:data.password
+        })
+
+        if(!session){
+          return toast({
+            title: "Sign in failed. Please try again",
+          })
+        }
+
+
+    }catch(error){
+      console.log("Error:",error);
+    }
+    
   }
 
   return (
@@ -91,7 +122,7 @@ const isLoading = false;
               )}
             />
             <Button type="submit" size="lg" className="shad-button_primary">
-              {isLoading ?(
+              {isCreatingUser ?(
                 <div className="flex-center gap-2 ">
                   <Loader/> Signing up...
                   </div>  

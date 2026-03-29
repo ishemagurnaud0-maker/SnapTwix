@@ -7,6 +7,7 @@ import SignInForm from './auth/forms/SignInForm';
 import AuthLayout from './auth/AuthLayout';
 import RootLayout from './_root/RootLayout';
 import {Home} from './_root/pages';
+import { Toaster } from './components/ui/toaster';
 
 
 const App = () => {
@@ -27,7 +28,7 @@ const App = () => {
 
       </Routes>
     </main>
-      
+      <Toaster />
     </>
   )
 }
