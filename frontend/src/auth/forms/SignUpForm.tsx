@@ -1,4 +1,4 @@
-import * as z from 'zod';
+  import * as z from 'zod';
 
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -6,10 +6,13 @@ import {Button} from '@/components/ui/Button';
 import {Form,FormControl,FormField,FormItem,FormLabel,FormMessage} from '@/components/ui/Form';
 import { Input } from "@/components/ui/Input";
 import { SignUpValidation } from "@/lib/validations";
+import Loader from "@/components/shared/Loader";
 
   
 
 const SignUpForm = () => {
+const isLoading = false;
+
       const form = useForm<z.infer<typeof SignUpValidation>>({
     resolver: zodResolver(SignUpValidation),
     mode: "onChange",
@@ -27,50 +30,60 @@ const SignUpForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your username" {...field} />
-                </FormControl>
-                <FormMessage className="text-red-600 text-sm font-medium" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="Enter your email" {...field} />
-                </FormControl>
-                <FormMessage className="text-red-600 text-sm font-medium" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="Enter your password" {...field} />
-                </FormControl>
-                <FormMessage className="text-red-600 text-sm font-medium" />
-              </FormItem>
-            )}
-          />
-        <Button type="submit" size="lg" className="w-full bg-blue-800 text-white hover:bg-blue-900">
-          Sign Up
-        </Button>
-      </form>
+      <div className="flex flex-col items-center justify-center min-h-screen p-2">
+        <img src="/assets/images/logo.png" alt="logo" className="w-48 h-46 " />
+        <h2 className="h3-bold md:h2-bold pt-5 sm:pt-12">Sign Up to SnapTwix</h2> 
+        <p className="text-light-3 small-medium md:base-regular mt-12">Enter your account details to get started</p>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5 w-full mt-4">
+            
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input type="text" className="shad-input" {...field} />
+                  </FormControl>
+                  <FormMessage className="text-red-600 text-sm font-medium" />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" className="shad-input" {...field} />
+                  </FormControl>
+                  <FormMessage className="text-red-600 text-sm font-medium" />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" className="shad-input" {...field} />
+                  </FormControl>
+                  <FormMessage className="text-red-600 text-sm font-medium" />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" size="lg" className="shad-button_primary">
+              {isLoading ?(
+                <div className="flex-center gap-2 ">
+                  <Loader/> Signing up...
+                  </div>  
+               ) : "Sign Up"}
+               </Button>
+          </form>
+      </div>
     </Form>
   )
 }
