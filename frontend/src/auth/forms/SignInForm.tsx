@@ -30,7 +30,7 @@ const SignInForm = () => {
   <Form {...form}>
       <div className="flex flex-col items-center justify-center min-h-screen p-2">
         <img src="/assets/images/logo.png" alt="logo" className="w-48 h-46 " />
-        <h2 className="h3-bold md:h2-bold pt-1 sm:pt-3">Sign Up to SnapTwix</h2> 
+        <h2 className="h3-bold md:h2-bold pt-1 sm:pt-3">Sign In to SnapTwix</h2> 
         <p className="text-light-3 small-medium md:base-regular mt-1">Enter your account details to get started</p>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5 w-full mt-4">
            <FormField
