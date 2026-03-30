@@ -1,6 +1,6 @@
 import type { INewUser } from "@/types";
 import { account,avatars,databases,appwriteConfig } from "./config";
-import { ID } from "appwrite";
+import { ID, Query } from "appwrite";
 
 //creating user account 
 const createUserAccount = async(user:INewUser) => {
@@ -78,5 +78,30 @@ const signInUser = async(user:{email:string,password:string}) => {
 } 
 
 
+const getCurrentUser = async() => {
+    try{
+        const currentAccount =  await account.get();
+        if(!currentAccount){
+            throw new Error("Failed to get current user")
+        }
 
-export { createUserAccount,signInUser}
+        const currentUser = await databases.listDocuments(
+            appwriteConfig.databaseID,
+            appwriteConfig.usersTableID,
+            [Query.equal("accountId",currentAccount.$id)]
+        )
+        if(!currentUser) throw Error;
+
+        return currentUser.documents[0];
+        
+        
+
+    }catch(err){
+        console.log("Error happened getting current user",err);
+        return null;
+    }
+}
+
+
+
+export { createUserAccount,signInUser,getCurrentUser}
