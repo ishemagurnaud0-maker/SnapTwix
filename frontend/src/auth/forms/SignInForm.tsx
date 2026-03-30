@@ -1,30 +1,67 @@
-  import * as z from 'zod';
-
+   import * as z from 'zod';
+import {useToast} from '@/hooks/use-toast';
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {Button} from '@/components/ui/Button';
 import {Form,FormControl,FormField,FormItem,FormLabel,FormMessage} from '@/components/ui/Form';
 import { Input } from "@/components/ui/Input";
-import { SignUpValidation } from "@/lib/validations";
+import { SignInValidation } from "@/lib/validations";
 import Loader from "@/components/shared/Loader";
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
+import {useUserContext} from '@/context/AuthContext';
+
+import { useSignInAccount } from '@/lib/react-query/queries&Mutations';
 
 const SignInForm = () => {
-  const form = useForm<z.infer<typeof SignUpValidation>>({
-    resolver: zodResolver(SignUpValidation),
+
+  const {toast} = useToast();
+  const navigate = useNavigate();
+  const {checkAuthUser,isLoading:isUserLoading} = useUserContext();
+  const {mutateAsync: signInUser, isPending:isSigningIn} = useSignInAccount();
+  
+
+  const form = useForm<z.infer<typeof SignInValidation>>({
+    resolver: zodResolver(SignInValidation),
     mode: "onChange",
     defaultValues: {
-      name:"",
-      username: "",
       email: "",
       password: "",
     },
   })
-  const isLoading = false;
+  
+  async function onSubmit(data: z.infer<typeof SignInValidation>) {
+      //CREATE NEW USER 
+      try{
+  
+  
+         // const session = await signInAccount(data);
+          const session = await signInUser({
+            email:data.email,
+            password:data.password
+          })
+  
+          if(!session){
+            return toast({
+              title: "Sign in failed. Please try again",
+            })
+          }
+  
+          const isLoggedIn = await checkAuthUser();
+       
+            if(isLoggedIn){
+            form.reset();
+            navigate('/');
+          }else{
+           return  toast({title:'Sign up failed. Please try again. '});
+          }
+  
+            }catch(error){
+        console.log("Error:",error);
+      }
+      
+    }
 
-  function onSubmit(data:z.infer<typeof SignUpValidation>){
-    console.log(data);
-  }
+ 
 
   return (
   <Form {...form}>
@@ -35,12 +72,12 @@ const SignInForm = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5 w-full mt-4">
            <FormField
               control={form.control}
-              name="username"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="text" className="shad-input" {...field} />
+                    <Input type="email" className="shad-input" {...field} />
                   </FormControl>
                   <FormMessage className="text-red-600 text-sm font-medium" />
                 </FormItem>
@@ -54,14 +91,14 @@ const SignInForm = () => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="text" className="shad-input" {...field} />
+                    <Input type="password" className="shad-input" {...field} />
                   </FormControl>
                   <FormMessage className="text-red-600 text-sm font-medium" />
                 </FormItem>
               )}
             />
             <Button type="submit" size="lg" className="shad-button_primary">
-              {isLoading ?(
+              {isSigningIn ?(
                 <div className="flex-center gap-2 ">
                   <Loader/> Loading up...
                   </div>  

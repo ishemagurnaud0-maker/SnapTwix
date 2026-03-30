@@ -7,17 +7,19 @@ import {Form,FormControl,FormField,FormItem,FormLabel,FormMessage} from '@/compo
 import { Input } from "@/components/ui/Input";
 import { SignUpValidation } from "@/lib/validations";
 import Loader from "@/components/shared/Loader";
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
+import {useUserContext} from '@/context/AuthContext';
 
 import { useCreateUserAccount,useSignInAccount } from '@/lib/react-query/queries&Mutations';
 
   
 
 const SignUpForm = () => {
-  const {toast} = useToast();
-
-  const {mutateAsync: createUserAccount, isLoading:isCreatingUser} = useCreateUserAccount();
-  const {mutateAsync: signInUser, isLoading:isSigningIn} = useSignInAccount();
+ const {toast} = useToast();
+  const navigate = useNavigate();
+  const {checkAuthUser,isLoading:isUserLoading} = useUserContext();
+    const {mutateAsync: signInUser, isPending:isSigningIn} = useSignInAccount();
+  const {mutateAsync: createUserAccount, isPending:isCreatingUser} = useCreateUserAccount();
 
 
       const form = useForm<z.infer<typeof SignUpValidation>>({
@@ -30,6 +32,8 @@ const SignUpForm = () => {
       password: "",
     },
   })
+
+  
  
    async function onSubmit(data: z.infer<typeof SignUpValidation>) {
     //CREATE NEW USER 
@@ -42,7 +46,7 @@ const SignUpForm = () => {
         })
       }
 
-       // const session = await signInAccount(data);
+       
         const session = await signInUser({
           email:data.email,
           password:data.password
@@ -54,12 +58,25 @@ const SignUpForm = () => {
           })
         }
 
+        const isLoggedIn = await checkAuthUser();
+     
+          if(isLoggedIn){
+          form.reset();
+          navigate('/');
+        }else{
+         return  toast({title:'Sign up failed. Please try again. '});
+        }
 
-    }catch(error){
+          }catch(error){
       console.log("Error:",error);
     }
     
   }
+
+        
+
+
+  
 
   return (
     <Form {...form}>
