@@ -30,8 +30,8 @@ const createUserAccount = async(user:INewUser) => {
         return newUser;
         
     } catch (err:any) {
-        if(err.code ===409){
-            throw new Error("An account with this email already exists. Please login instead.")
+        if(err.code === 409){
+            throw new Error("An account with this email or username already exists. Please login instead.")
         }
         throw err;
     }
@@ -74,6 +74,7 @@ const signInUser = async(user:{email:string,password:string}) => {
    
 }catch(err){
     console.log("Error happened establishing session",err);
+    throw err;
     }
 } 
 
