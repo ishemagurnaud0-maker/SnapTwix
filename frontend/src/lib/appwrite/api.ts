@@ -71,10 +71,18 @@ const saveUserToDb = async(user:{accountId:string,username?:string,name:string,e
 const signInUser = async(user:{email:string,password:string}) => {
     try{
     const {email,password} = user;
+
+    try{
+        await account.deleteSession('current');
+    }catch(err){
+        console.log("Failed to delete session");
+        throw err;
+    }
         const session = await account.createEmailPasswordSession(email,password);
 
         if(!session) throw new Error("Failed to generate user session.")
-            console.log("User session generated.")
+            
+
         return session;
    
 }catch(err){
