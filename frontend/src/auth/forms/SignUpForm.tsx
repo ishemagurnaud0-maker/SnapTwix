@@ -143,7 +143,7 @@ const SignUpForm = () => {
                 <div className="flex-center gap-2 ">
                   <Loader/> Signing up...
                   </div>  
-               ) : "Sign Up"}
+               ) : "Sign up"}
                </Button>
                <p className="text-light-3 text-center">
                 Already have an account? <Link to="/sign-in" className="text-primary-500">Sign in</Link>

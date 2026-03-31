@@ -31,9 +31,9 @@ const SignInForm = () => {
   
   async function onSubmit(data: z.infer<typeof SignInValidation>) {
       //CREATE NEW USER 
-      try{
+      
   
-  
+    try{
          // const session = await signInAccount(data);
           const session = await signInUser({
             email:data.email,
@@ -98,7 +98,7 @@ const SignInForm = () => {
               )}
             />
             <Button type="submit" size="lg" className="shad-button_primary">
-              {isSigningIn ?(
+              {isUserLoading ?(
                 <div className="flex-center gap-2 ">
                   <Loader/> Loading up...
                   </div>  

@@ -1,6 +1,7 @@
 import * as z from "zod";
 
 
+
 export const SignUpValidation = z.object({
   name: z.string().min(3, "Name must be at least 3 characters."),
   username: z
@@ -14,4 +15,21 @@ export const SignUpValidation = z.object({
     .string()
     .min(8, "Password must be at least 8 characters.")
     .max(50, "Password must be at most 50 characters."),
+})
+
+export const SignInValidation = z.object({
+  email: z
+    .string()
+    .email("Invalid email address."),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters.")
+    .max(50, "Password must be at most 50 characters."),
+})
+
+
+export const checkPasswordValidation = z.object({
+  email: z
+  .string()
+  .email("Invalid email address.")
 })

@@ -25,6 +25,7 @@ const createUserAccount = async(user:INewUser) => {
             name: name,
             email: email,
             imageUrl: avatarUrl,
+            password:password
         });
 
         return newUser;
@@ -39,9 +40,9 @@ const createUserAccount = async(user:INewUser) => {
 
 // Saving user to database
 
-const saveUserToDb = async(user:{accountId:string,username?:string,name:string,email:string,imageUrl:string}) => {
+const saveUserToDb = async(user:{accountId:string,username?:string,name:string,email:string,imageUrl:string,password:string}) => {
     try {
-            const {accountId,username,name,email,imageUrl} = user;
+            const {accountId,username,name,email,imageUrl,password} = user;
         
             const savedUser = await databases.createDocument(
                 appwriteConfig.databaseID,
@@ -52,7 +53,8 @@ const saveUserToDb = async(user:{accountId:string,username?:string,name:string,e
                     username,
                     name,
                     email,
-                    imageUrl
+                    imageUrl,
+                    password
                 }
             )
 
@@ -70,6 +72,9 @@ const signInUser = async(user:{email:string,password:string}) => {
     try{
     const {email,password} = user;
         const session = await account.createEmailPasswordSession(email,password);
+
+        if(!session) throw new Error("Failed to generate user session.")
+            console.log("User session generated.")
         return session;
    
 }catch(err){
