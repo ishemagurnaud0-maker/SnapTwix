@@ -118,4 +118,23 @@ const getCurrentUser = async() => {
 
 
 
-export { createUserAccount,signInUser,getCurrentUser}
+const signOutUser = async() => {
+    try{
+        const currentSession = await account.getSession('current');
+
+        if(!currentSession){
+            throw new Error("No active session found");
+        }
+
+       await account.deleteSession('current');
+      
+
+    }catch(err){
+        console.log("Error happened signing out user",err);
+        throw err;
+    }
+}
+
+
+
+export { createUserAccount,signInUser,getCurrentUser,signOutUser}
