@@ -12,12 +12,12 @@
     {
         label: 'Create',
         route: '/create-post',
-        imgURL: '/assets/icons/add.svg'
+        imgURL: '/assets/icons/gallery-add.svg'
     },
     {
-        label: 'Profile',
-        route: '/profile',
-        imgURL: '/assets/icons/profile.svg'
+        label: 'People',
+        route: '/people',
+        imgURL: '/assets/icons/people.svg'
     },
     {
         label: 'Saved',
