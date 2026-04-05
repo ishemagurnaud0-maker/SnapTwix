@@ -1,6 +1,6 @@
-import type { INewUser } from "@/types";
-import { account,avatars,databases,appwriteConfig } from "./config";
-import { ID, Query } from "appwrite";
+import type { INewPost, INewUser } from "@/types";
+import { account,avatars,databases,appwriteConfig,storage } from "./config";
+import { ID, ImageGravity, Query } from "appwrite";
 
 //creating user account 
 const createUserAccount = async(user:INewUser) => {
@@ -136,5 +136,112 @@ const signOutUser = async() => {
 }
 
 
+const createNewPost = async(post:INewPost) => {
+    try{
+        // Uploading post to the storage media
+        const {userId,caption,file, location, tags} = post;
 
-export { createUserAccount,signInUser,getCurrentUser,signOutUser}
+       const uploadedFile = await uploadFile(file[0]);
+
+        if(!uploadedFile){
+            throw new Error("Failed to upload file")
+        }
+
+        const fileUrl = await getFilePreview(uploadedFile.$id);
+        if(!fileUrl){
+            deleteFile(uploadedFile.$id);
+            throw new Error("Failed to get file preview")
+        }
+
+        // Save post to database
+        const newPost = await databases.createDocument(
+            appwriteConfig.databaseID,
+            appwriteConfig.postsTableID,
+            ID.unique(),
+            {
+                caption,
+                imageUrl: fileUrl,
+                location,
+                tags: tags || [],
+                userId,
+                imageId: uploadedFile.$id
+            }
+        );
+
+        if(!newPost){
+            await deleteFile(uploadedFile.$id);
+            throw new Error("Failed to create post");
+        }
+
+        return newPost;
+
+
+        
+    }catch(err){
+        console.log("Error happened uploading a file",err);
+        throw err;
+    }
+}
+
+
+
+
+export const uploadFile = async(file:File) => {
+    const fileId = ID.unique();
+    
+    try{
+        const uploadedFile = await storage.createFile(
+            appwriteConfig.storageBucketID,
+            fileId,
+            file
+            
+        )
+        return uploadedFile;
+    
+    }catch(err){
+    console.log("Error happened uploading a file",err);
+    throw err;
+}}
+
+export const getFilePreview = async(fileId:string) => {
+    try{
+        const fileUrl = await storage.getFilePreview(
+            appwriteConfig.storageBucketID,
+            fileId,
+            2000,
+            2000,
+            "top" as ImageGravity,
+            100,
+        )
+        return fileUrl;
+    }catch(err){
+        console.log("Error happened getting file preview",err);
+        throw err;
+    }
+}
+
+export const deleteFile = async(fileID:string) => {
+    try{
+        await storage.deleteFile(
+            appwriteConfig.storageBucketID,
+            fileID
+        )
+
+        return {success:true}
+    }catch(err){
+        console.log("Error happened deleting file",err);
+        throw err;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+export { createUserAccount,signInUser,getCurrentUser,signOutUser,createNewPost }
