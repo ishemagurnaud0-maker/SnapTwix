@@ -8,17 +8,16 @@ import { Input } from "@/components/ui/Input";
 import { SignUpValidation } from "@/lib/validations";
 import Loader from "@/components/shared/Loader";
 import { Link,useNavigate } from 'react-router-dom';
-import {useUserContext} from '@/context/AuthContext';
 
-import { useCreateUserAccount,useSignInAccount } from '@/lib/react-query/queries&Mutations';
+import { useCreateUserAccount } from '@/lib/react-query/queries&Mutations';
 
   
 
 const SignUpForm = () => {
  const {toast} = useToast();
   const navigate = useNavigate();
-  const {checkAuthUser,isLoading:isUserLoading} = useUserContext();
-    const {mutateAsync: signInUser, isPending:isSigningIn} = useSignInAccount();
+
+
   const {mutateAsync: createUserAccount, isPending:isCreatingUser} = useCreateUserAccount();
 
 
@@ -45,30 +44,13 @@ const SignUpForm = () => {
           title: "Sign up failed. Please try again",
         })
       }
-
-       
-        const session = await signInUser({
-          email:data.email,
-          password:data.password
-        })
-
-        if(!session){
-          return toast({
-            title: "Sign in failed. Please try again",
+      navigate('/sign-in');
+        }catch(error){
+          toast({
+            title: error as string
           })
-        }
 
-        const isLoggedIn = await checkAuthUser();
-     
-          if(isLoggedIn){
-          form.reset();
-          navigate('/');
-        }else{
-         return  toast({title:'Sign up failed. Please try again. '});
-        }
-
-          }catch(error){
-      console.log("Error:",error);
+          console.log(error);
     }
     
   }

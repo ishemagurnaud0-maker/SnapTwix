@@ -23,7 +23,7 @@ import type { Models } from "appwrite";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useUserContext } from "@/context/AuthContext";
-import { useCreatePost,useUpdatePost } from "@/lib/react-query/queries&Mutations";
+import { useCreatePost } from "@/lib/react-query/queries&Mutations";
 
 
 
@@ -66,8 +66,8 @@ const PostForm = ({post}: PostFormProps) => {
 
   const onSubmit = async(data: z.infer<typeof formschema>) => {
 try{
-    const tags = data.tags.join(",").split(",").map(tag=> tag.trim()).filter(tag=>tag.length > 0)
-    const postData = {...data,tags, userId: user.id}
+    
+    const postData = {...data, userId: user.id}
     
     const newPost = await createNewPost(postData);
 

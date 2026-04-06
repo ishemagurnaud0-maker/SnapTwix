@@ -28,18 +28,29 @@
 
 export const bottomBarLinks = [
     {
-        imgUrl: '/assets/icons/home.svg',
+        imgURL: '/assets/icons/home.svg',
         route: '/',
         label: 'Home'
     },
     {
-        imgUrl:'asserss/icons/wallpaper.svg',
-        route:'/explore',
-        label:'Explore'
+        imgURL: '/assets/icons/wallpaper.svg',
+        route: '/explore',
+        label: 'Explore'
     },
     {
-        imgUrl:'assets/icons/bookmark.svg',
-        route:'/saved',
-        label:'Saved'
-    }
+        imgURL: '/assets/icons/gallery-add.svg',
+        route: '/create-post',
+        label: 'Create'
+    },
+    {
+        label: 'People',
+        route: '/people',
+        imgURL: '/assets/icons/people.svg'
+    },
+    {
+        imgURL: '/assets/icons/bookmark.svg',
+        route: '/saved',
+        label: 'Saved'
+    },
+
 ]

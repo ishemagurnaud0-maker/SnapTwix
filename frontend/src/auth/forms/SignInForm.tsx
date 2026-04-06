@@ -41,10 +41,13 @@ const SignInForm = () => {
           })
   
           if(!session){
-            return toast({
+             console.log("User session created.");
+                return toast({
               title: "Sign in failed. Please try again",
             })
+
           }
+            
   
           const isLoggedIn = await checkAuthUser();
        
@@ -52,7 +55,7 @@ const SignInForm = () => {
             form.reset();
             navigate('/');
           }else{
-           return  toast({title:'Sign up failed. Please try again. '});
+           return  toast({title:'Sign in failed. Please try again. '});
           }
   
             }catch(error){
@@ -98,7 +101,7 @@ const SignInForm = () => {
               )}
             />
             <Button type="submit" size="lg" className="shad-button_primary">
-              {isUserLoading ?(
+              {isSigningIn ?(
                 <div className="flex-center gap-2 ">
                   <Loader/> Loading up...
                   </div>  

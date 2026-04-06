@@ -203,9 +203,9 @@ export const uploadFile = async(file:File) => {
     throw err;
 }}
 
-export const getFilePreview = async(fileId:string) => {
+export const getFilePreview = (fileId:string) => {
     try{
-        const fileUrl = await storage.getFilePreview(
+        const fileUrl = storage.getFilePreview(
             appwriteConfig.storageBucketID,
             fileId,
             2000,
@@ -234,6 +234,47 @@ export const deleteFile = async(fileID:string) => {
     }
 }
 
+const getRecentPosts = async() => {
+    try{
+
+        const posts = await databases.listDocuments(
+            appwriteConfig.databaseID,
+            appwriteConfig.postsTableID,
+            [
+                Query.orderDesc("$createdAt"),
+                Query.limit(20)
+            ]
+        )
+
+        // Fetch user data for each post
+        const postsWithUsers = await Promise.all(
+            posts.documents.map(async (post) => {
+                const user = await databases.listDocuments(
+                    appwriteConfig.databaseID,
+                    appwriteConfig.usersTableID,
+                    [Query.equal("$id", post.userId)]
+                );
+                
+                return {
+                    ...post,
+                    creator: user.documents[0] ? {
+                        name: user.documents[0].name,
+                        username: user.documents[0].username,
+                        imageUrl: user.documents[0].imageUrl
+                    } : null
+                };
+            })
+        );
+
+        return {
+            ...posts,
+            documents: postsWithUsers
+        };
+    }catch(err){
+        console.log("Error happened getting recent posts",err);
+        throw err;
+    }
+}
 
 
 
@@ -244,4 +285,5 @@ export const deleteFile = async(fileID:string) => {
 
 
 
-export { createUserAccount,signInUser,getCurrentUser,signOutUser,createNewPost }
+
+export { createUserAccount,signInUser,getCurrentUser,signOutUser,createNewPost,getRecentPosts }

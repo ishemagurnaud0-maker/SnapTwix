@@ -12,15 +12,22 @@ const LeftSidebar = () => {
   
   const { pathname } = useLocation();
   const { mutate: signOutUser ,isPending:isSigningOut} = useSignOutAccount();
+  const navigate = useNavigate();
 
   const isActive = (path:string) => pathname === path;
 
   const { user } = useUserContext();
+
+  useEffect(() => {
+    if(isSigningOut) {
+      navigate('/sign-in');
+    }
+  }, [isSigningOut])
   
   return (
     <nav className="leftsidebar">
-      <div className="flex flex-col gap-10">
-         <Link to="/" className="flex gap-3 items-center">
+      <div className="flex flex-col gap-10 pb-5">
+         <Link to="/" className="flex gap-3 items-center -mt-8">
         <img src="/assets/images/logo.png" alt="logo" width={180} height={325} />
         </Link>
 
@@ -38,7 +45,7 @@ const LeftSidebar = () => {
           const isCurrentPage = isActive(link.route);
           return (
           <li key={link.label} className={`leftsidebar-link group ${isCurrentPage ? "bg-primary-500" : ""}`}>
-            <NavLink to={link.route} className="flex gap-4 items-center p-4">
+            <NavLink to={link.route} className="flex gap-4 items-center p-3">
               <img src={link.imgURL} alt={link.label} className={`group-hover:invert-white ${isCurrentPage ? "invert-white" : ""}`}/>
               <p>{link.label}</p>
             </NavLink>
@@ -51,7 +58,7 @@ const LeftSidebar = () => {
 
       </div>
 
-      <Button variant="ghost" className="shad-button_ghost py-10" onClick={() => signOutUser()}>
+      <Button variant="ghost" className="shad-button_ghost" onClick={() => signOutUser()}>
         <img src="/assets/icons/logout.svg" alt="logout" />
         <p className="small-medium lg:base-medium">Logout</p>
       </Button>
