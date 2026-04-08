@@ -6,10 +6,11 @@ export const appwriteConfig = {
     projectID:import.meta.env.VITE_APPWRITE_PROJECT_ID,
     databaseID:import.meta.env.VITE_APPWRITE_DATABASE_ID,
     storageID:import.meta.env.VITE_APPWRITE_STORAGE_ID,
+    storageBucketID:import.meta.env.VITE_APPWRITE_STORAGE_ID, // Use storageID as bucket ID
     usersTableID:import.meta.env.VITE_APPWRITE_USERS_TABLE_ID,
     postsTableID:import.meta.env.VITE_APPWRITE_POSTS_TABLE_ID,
     savesTableID:import.meta.env.VITE_APPWRITE_SAVES_TABLE_ID,
-    storageBucketID:import.meta.env.VITE_APPWRITE_STORAGE_BUCKET_ID,
+    
 }
 
 

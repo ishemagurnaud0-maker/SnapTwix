@@ -1,6 +1,6 @@
 import type { INewPost, INewUser } from "@/types";
 import { account,avatars,databases,appwriteConfig,storage } from "./config";
-import { ID, ImageGravity, Query } from "appwrite";
+import { ID, Query } from "appwrite";
 
 //creating user account 
 const createUserAccount = async(user:INewUser) => {
@@ -70,16 +70,19 @@ const saveUserToDb = async(user:{accountId:string,username?:string,name:string,e
 
 const signInUser = async(user:{email:string,password:string}) => {
     try{
-    const {email,password} = user;
+    const { email,password } = user;
 
     try{
-        await account.deleteSession('current');
+        const currentSession = await account.getSession('current');
+        if(currentSession) {
+            await account.deleteSession('current');
+        }
     }catch(err){
-        console.log("Failed to delete session");
-        throw err;
+        // No session exists, which is expected for sign-in
+        console.log("No existing session to delete");
     }
         const session = await account.createEmailPasswordSession(email,password);
-
+        
         if(!session) throw new Error("Failed to generate user session.")
             
 
@@ -94,9 +97,11 @@ const signInUser = async(user:{email:string,password:string}) => {
 
 const getCurrentUser = async() => {
     try{
-        const currentAccount =  await account.get();
+        // Try to get the current account - this will fail if no session exists
+        const currentAccount = await account.get();
+        
         if(!currentAccount){
-            throw new Error("Failed to get current user")
+            throw new Error("No current account found");
         }
 
         const currentUser = await databases.listDocuments(
@@ -104,14 +109,15 @@ const getCurrentUser = async() => {
             appwriteConfig.usersTableID,
             [Query.equal("accountId",currentAccount.$id)]
         )
-        if(!currentUser) throw Error;
+        
+        if(!currentUser || currentUser.documents.length === 0) {
+            return null;
+        }
 
         return currentUser.documents[0];
-        
-        
 
     }catch(err){
-        console.log("Error happened getting current user",err);
+        // This will catch the 401 error when no session exists
         return null;
     }
 }
@@ -139,33 +145,55 @@ const signOutUser = async() => {
 const createNewPost = async(post:INewPost) => {
     try{
         // Uploading post to the storage media
-        const {userId,caption,file, location, tags} = post;
+        const {creator,caption,file, location, tags} = post;
 
-       const uploadedFile = await uploadFile(file[0]);
+        // Validate file array
+        if (!file || !Array.isArray(file) || file.length === 0) {
+            throw new Error("No file provided");
+        }
+        
+        // Ensure the first item is a File object
+        const fileToUpload = file[0];
+        if (!(fileToUpload instanceof File)) {
+            throw new Error(`Invalid file type: Expected File object, received ${typeof fileToUpload}`);
+        }
+
+       const uploadedFile = await uploadFile(fileToUpload);
 
         if(!uploadedFile){
             throw new Error("Failed to upload file")
         }
 
-        const fileUrl = await getFilePreview(uploadedFile.$id);
+        const fileUrl = await getFileView(uploadedFile.$id);
+        console.log('File ID:', uploadedFile.$id);
+        console.log('Generated URL:', fileUrl);
         if(!fileUrl){
             deleteFile(uploadedFile.$id);
             throw new Error("Failed to get file preview")
         }
 
+
+        //turning tags into tags into array of tags
+        if(!tags){
+            throw new Error("Tags are required")
+        }
+        const tagsArray = tags.split(",").map((tag) => tag.trim());
+
         // Save post to database
+        const documentData = {
+            caption: caption,
+            imageUrl: fileUrl,
+            location: location || "",
+            tags: tagsArray || [],
+            creator:creator,
+            imageId: uploadedFile.$id
+        };
+        
         const newPost = await databases.createDocument(
             appwriteConfig.databaseID,
             appwriteConfig.postsTableID,
             ID.unique(),
-            {
-                caption,
-                imageUrl: fileUrl,
-                location,
-                tags: tags || [],
-                userId,
-                imageId: uploadedFile.$id
-            }
+            documentData
         );
 
         if(!newPost){
@@ -187,6 +215,9 @@ const createNewPost = async(post:INewPost) => {
 
 
 export const uploadFile = async(file:File) => {
+    
+   
+    
     const fileId = ID.unique();
     
     try{
@@ -194,7 +225,6 @@ export const uploadFile = async(file:File) => {
             appwriteConfig.storageBucketID,
             fileId,
             file
-            
         )
         return uploadedFile;
     
@@ -203,19 +233,16 @@ export const uploadFile = async(file:File) => {
     throw err;
 }}
 
-export const getFilePreview = (fileId:string) => {
+export const getFileView = (fileId:string) => {
     try{
-        const fileUrl = storage.getFilePreview(
+        const fileUrl = storage.getFileView(
             appwriteConfig.storageBucketID,
-            fileId,
-            2000,
-            2000,
-            "top" as ImageGravity,
-            100,
+            fileId
         )
+        console.log('Generated file URL:', fileUrl);
         return fileUrl;
     }catch(err){
-        console.log("Error happened getting file preview",err);
+        console.log("Error happened getting file view",err);
         throw err;
     }
 }
@@ -252,7 +279,7 @@ const getRecentPosts = async() => {
                 const user = await databases.listDocuments(
                     appwriteConfig.databaseID,
                     appwriteConfig.usersTableID,
-                    [Query.equal("$id", post.userId)]
+                    [Query.equal("$id", post.creator)]
                 );
                 
                 return {
@@ -261,7 +288,8 @@ const getRecentPosts = async() => {
                         name: user.documents[0].name,
                         username: user.documents[0].username,
                         imageUrl: user.documents[0].imageUrl
-                    } : null
+                    } : null,
+                    user_id: post.creator // Add user_id for compatibility
                 };
             })
         );
@@ -274,7 +302,16 @@ const getRecentPosts = async() => {
         console.log("Error happened getting recent posts",err);
         throw err;
     }
+
+
 }
+
+
+
+
+
+
+
 
 
 
