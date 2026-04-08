@@ -1,4 +1,4 @@
-import type { INewUser, INewPost } from "@/types";
+import type { INewUser, INewPost, IUpdatePost } from "@/types";
 import { 
     useMutation,
     useQuery,
@@ -6,7 +6,7 @@ import {
    // useInfiniteQuery,
     
 } from "@tanstack/react-query";
-import { createUserAccount,signInUser,signOutUser,createNewPost,getRecentPosts,likePost, savePost, deleteSavedPost } from "../appwrite/api";
+import { createUserAccount,signInUser,signOutUser,createNewPost,getRecentPosts,likePost, savePost, deleteSavedPost, getSavedPosts,updatePost,getCurrentUser } from "../appwrite/api";
 import { QUERY_KEYS } from "./queryKeys";
 
 
@@ -131,5 +131,34 @@ export const useDeletePost = () => {
                 queryKey: [QUERY_KEYS.GET_CURRENT_USER]
             });
         }
+    })
+}
+
+
+export const useGetSavedPosts = (userId:string) => {
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_SAVED_POSTS],
+        queryFn: () => getSavedPosts(userId),
+    })
+}
+
+export const useUpdatePost = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn:(post:IUpdatePost) => {
+            return updatePost(post)
+        },
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_POST_BY_ID, data?.$id]
+            });
+        }
+    })
+}
+
+export const useGetCurrentUser = () => {
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_CURRENT_USER],
+        queryFn: getCurrentUser,
     })
 }
