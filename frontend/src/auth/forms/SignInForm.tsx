@@ -39,9 +39,9 @@ const SignInForm = () => {
             email:data.email,
             password:data.password
           })
-  
+              console.log('Session:',session);
           if(!session){
-             console.log("User session created.");
+             
                 return toast({
               title: "Sign in failed. Please try again",
             })
@@ -50,7 +50,8 @@ const SignInForm = () => {
             
   
           const isLoggedIn = await checkAuthUser();
-       
+            console.log('Is logged in:',isLoggedIn);
+          
             if(isLoggedIn){
             form.reset();
             navigate('/');
