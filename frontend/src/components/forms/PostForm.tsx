@@ -30,7 +30,7 @@ import { useCreatePost } from "@/lib/react-query/queries&Mutations";
 interface PostDocument extends Models.Document {
   caption: string;
   location: string;
-  tags: string[];
+  tags: string;
   imageUrl: string;
 }
 
@@ -42,8 +42,10 @@ interface PostFormProps {
 const formschema = z.object({
   caption: z.string().min(1, "Caption is required"),
   location:z.string().min(6, "Location is required"),
-  tags: z.array(z.string()).min(1, "Tags are required"),
-  file: z.custom<File[]>()
+  tags: z.string().min(1, "Tags are required"),
+  file: z.array(z.custom<File>((val) => val instanceof File, {
+    message: "Must be a File object"
+  })).min(1, "At least one file is required")
 })
 
 const PostForm = ({post}: PostFormProps) => {
@@ -52,7 +54,7 @@ const PostForm = ({post}: PostFormProps) => {
     resolver: zodResolver(formschema),
     defaultValues: {
       caption:post ? post.caption : "",
-      tags:post ? post.tags : [],
+      tags:post ? post.tags : "",
       location:post ? post.location : "",
       file: [],
     }
@@ -67,7 +69,7 @@ const PostForm = ({post}: PostFormProps) => {
   const onSubmit = async(data: z.infer<typeof formschema>) => {
 try{
     
-    const postData = {...data, userId: user.id}
+    const postData = {...data, creator: user.id}
     
     const newPost = await createNewPost(postData);
 

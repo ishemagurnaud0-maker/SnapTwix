@@ -14,11 +14,11 @@ export type IUpdateUser = {
 };
 
 export type INewPost = {
-    userId:string;
+    creator:string;
     caption:string;
     file:File[];
     location?:string;
-    tags?:string[];
+    tags?:string;
 };
 
 export type IUpdatePost = {
@@ -26,7 +26,7 @@ export type IUpdatePost = {
     caption:string;
     file:File[];
     location?:string;
-    tags?:string[];
+    tags?:string;
 };
 
 export type IDeletePost = {
@@ -64,6 +64,7 @@ export type IContextType = {
     isAuthenticated:boolean,
     setIsAuthenticated:React.Dispatch<React.SetStateAction<boolean>>,
     checkAuthUser: () => Promise<boolean>;
+    handleSignOut: () => Promise<void>;
 }
 
 

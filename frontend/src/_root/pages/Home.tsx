@@ -1,7 +1,7 @@
 import Loader from "@/components/shared/Loader";
 import { useGetRecentPosts } from "@/lib/react-query/queries&Mutations";
 import type { Models } from "appwrite";
-import PostCard from "@/components/shared/PostCard";
+import PostCard from "@/components/shared/PostCard.tsx";
 
 const Home = () => {
   const {data:posts, isPending:isPostLoading} = useGetRecentPosts();

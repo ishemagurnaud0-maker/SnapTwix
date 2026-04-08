@@ -1,6 +1,6 @@
 import type { IContextType, IUser } from '@/types';
 import {createContext,useContext,useEffect,useState} from 'react';
-import { getCurrentUser } from '@/lib/appwrite/api';
+import { getCurrentUser, signOutUser } from '@/lib/appwrite/api';
 import { useNavigate } from 'react-router-dom';
 
 export 
@@ -20,6 +20,7 @@ const INITIAL_STATE = {
     setUser: () => {},
     setIsAuthenticated: () => {},
     checkAuthUser: async () => false as boolean, 
+    handleSignOut: async () => {},
 }
 
 const AuthContext = createContext<IContextType>(INITIAL_STATE);
@@ -47,6 +48,8 @@ const AuthProvider = ({children}:{children:React.ReactNode}) => {
                     bio:currentAccount.bio
                 })
                 setIsAuthenticated(true);
+                // Set fallback to indicate user is authenticated
+                localStorage.setItem('cookiefallback', 'authenticated');
                 return true;
             }
 
@@ -60,13 +63,29 @@ const AuthProvider = ({children}:{children:React.ReactNode}) => {
         }
     }
 
+    const handleSignOut = async () => {
+        try {
+            await signOutUser();
+            setUser(INITIAL_USER);
+            setIsAuthenticated(false);
+            localStorage.removeItem('cookiefallback');
+            navigate('/sign-in');
+        } catch (error) {
+            console.log('Error signing out:', error);
+        }
+    }
+
     useEffect(() =>{
-        if(
-            localStorage.getItem('cookiefallback') === '[]'  
-          
-        )navigate('/sign-in');
-            
-         checkAuthUser();
+        const cookieFallback = localStorage.getItem('cookiefallback');
+        
+        // If there's no cookie fallback, user is not authenticated
+        if(cookieFallback === '[]' || cookieFallback === null) {
+            navigate('/sign-in');
+            return;
+        }
+        
+        // Only check auth if there might be a session
+        checkAuthUser();
         
     },[]);
 
@@ -78,6 +97,7 @@ const AuthProvider = ({children}:{children:React.ReactNode}) => {
         setUser,
         setIsAuthenticated,
         checkAuthUser,
+        handleSignOut,
     }}>
         {children}
     </AuthContext.Provider>
