@@ -307,8 +307,28 @@ const getRecentPosts = async() => {
 }
 
 
+export const likePost = async(postId:string , likesArray:string[]) => {
+    try{
+        const updatedPost = await databases.updateDocument(
+            appwriteConfig.databaseID,
+            appwriteConfig.postsTableID,
+            postId,
+            {
+                likes:likesArray
+            }
+        )
 
+        if(!updatedPost){
+            throw new Error("Failed to update post");
+        }
 
+        return updatedPost;
+    }catch(err){
+        console.log("Error happened liking post",err);
+        throw err;
+    }
+}
+ 
 
 
 
