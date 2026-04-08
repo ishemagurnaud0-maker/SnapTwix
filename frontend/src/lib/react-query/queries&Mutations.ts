@@ -3,7 +3,7 @@ import {
     useMutation,
     useQuery,
     useQueryClient,
-    useInfiniteQuery,
+   // useInfiniteQuery,
     
 } from "@tanstack/react-query";
 import { createUserAccount,signInUser,signOutUser,createNewPost,getRecentPosts } from "../appwrite/api";
