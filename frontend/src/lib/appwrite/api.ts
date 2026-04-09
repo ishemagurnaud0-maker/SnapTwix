@@ -1,4 +1,4 @@
-import type { INewPost, INewUser } from "@/types";
+import type { INewPost, INewUser,IUpdatePost } from "@/types";
 import { account,avatars,databases,appwriteConfig,storage } from "./config";
 import { ID, Query } from "appwrite";
 
@@ -273,26 +273,33 @@ const getRecentPosts = async() => {
             ]
         )
 
+        
+
         // Fetch user data for each post
         const postsWithUsers = await Promise.all(
             posts.documents.map(async (post) => {
+
+                const creatorId = typeof post.creator === 'string' ? post.creator : post.creator?.$id;
                 const user = await databases.listDocuments(
                     appwriteConfig.databaseID,
                     appwriteConfig.usersTableID,
-                    [Query.equal("$id", post.creator)]
+                    [Query.equal("$id", creatorId)]
                 );
                 
                 return {
                     ...post,
+                    Likes: post.Likes || [],
                     creator: user.documents[0] ? {
                         name: user.documents[0].name,
                         username: user.documents[0].username,
-                        imageUrl: user.documents[0].imageUrl
+                        imageUrl: user.documents[0].imageUrl,
+                        $id: user.documents[0].$id
                     } : null,
-                    user_id: post.creator // Add user_id for compatibility
+                    user_id: post.creator 
                 };
             })
         );
+        
 
         return {
             ...posts,
@@ -307,14 +314,14 @@ const getRecentPosts = async() => {
 }
 
 
-export const likePost = async(postId:string , likesArray:string[]) => {
+ const likePost = async(postId:string , likesArray:string[]) => {
     try{
         const updatedPost = await databases.updateDocument(
             appwriteConfig.databaseID,
             appwriteConfig.postsTableID,
             postId,
             {
-                likes:likesArray
+                Likes:likesArray
             }
         )
 
@@ -328,7 +335,79 @@ export const likePost = async(postId:string , likesArray:string[]) => {
         throw err;
     }
 }
+
+const savePost = async(postId:string, userId:string) => {
+    try{
+        const savedPost = await databases.createDocument(
+            appwriteConfig.databaseID,
+            appwriteConfig.savesTableID,
+            ID.unique(),
+            {
+                post: postId,
+                users: userId
+            }
+        )
+        return {status:"ok",savedPost}
+    }catch(err){
+        console.log("Error happened saving post",err);
+        throw err;
+    }
+}
+
+const deleteSavedPost = async(savedRecordId:string) => {
+    try{
+        const statusCode = await databases.deleteDocument(
+            appwriteConfig.databaseID,
+            appwriteConfig.savesTableID,
+            savedRecordId
+        )
+        return {status:"ok",statusCode}
+
+    }catch(err){
+        console.log("Error happened deleting saved post",err);
+        throw err;
+    }
+
+
+}
+
+
+const getSavedPosts = async(userId:string) => {
+    try {
+        const savedPosts = await databases.listDocuments(
+            appwriteConfig.databaseID,
+            appwriteConfig.savesTableID,
+            [
+                Query.equal("users", userId)
+            ]
+        )
+
+        return savedPosts;
+
+    } catch (error) {
+        console.log("Error happened getting saved posts",error);
+        throw error;
+    }
+}
  
+const updatePost = async(post:IUpdatePost) => {
+    try{
+        const updatedPost = await databases.updateDocument(
+            appwriteConfig.databaseID,
+            appwriteConfig.postsTableID,
+            post.postId,
+            { 
+                caption: post.caption,
+                location: post.location,
+                tags: post.tags
+            }
+        )
+      return updatedPost;
+    }catch(err){
+        console.log("Error happened updating post",err);
+        throw err;
+    }
+}
 
 
 
@@ -342,5 +421,4 @@ export const likePost = async(postId:string , likesArray:string[]) => {
 
 
 
-
-export { createUserAccount,signInUser,getCurrentUser,signOutUser,createNewPost,getRecentPosts }
+export { createUserAccount,signInUser,getCurrentUser,signOutUser,createNewPost,getRecentPosts,likePost,deleteSavedPost,savePost,getSavedPosts,updatePost }
