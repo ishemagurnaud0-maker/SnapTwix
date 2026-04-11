@@ -371,6 +371,44 @@ const deleteSavedPost = async(savedRecordId:string) => {
 
 }
 
+const getPostById = async(postId:string) => {
+    try{
+        const post = await databases.getDocument(
+            appwriteConfig.databaseID,
+            appwriteConfig.postsTableID,
+            postId
+        )
+
+        // Fetch user data for the post
+        const creatorId = typeof post.creator === 'string' ? post.creator : post.creator?.$id;
+        const user = await databases.listDocuments(
+            appwriteConfig.databaseID,
+            appwriteConfig.usersTableID,
+            [Query.equal("$id", creatorId)]
+        );
+        
+        return {
+            ...post,
+            Likes: post.Likes || [],
+            creator: user.documents[0] ? {
+                name: user.documents[0].name,
+                username: user.documents[0].username,
+                imageUrl: user.documents[0].imageUrl,
+                $id: user.documents[0].$id
+            } : null,
+            user_id: post.creator,
+            caption: post.caption,
+            location: post.location,
+            tags: post.tags,
+            imageUrl: post.imageUrl,
+            imageId: post.imageId
+        };
+    }catch(err){
+        console.log("Error happened getting post by id",err);
+        throw err;
+    }
+}
+
 
 const getSavedPosts = async(userId:string) => {
     try {
@@ -391,16 +429,51 @@ const getSavedPosts = async(userId:string) => {
 }
  
 const updatePost = async(post:IUpdatePost) => {
+
+    const hasFileToUpdate = post.file.length > 0;
+    const {postId, caption, location, tags, file, imageUrl, imageId} = post;
+
     try{
+        let image = {
+            imageUrl,
+            imageId,
+        }
+
+
+        if(hasFileToUpdate){
+            const fileToUpload = await uploadFile(file[0]);
+                if(!fileToUpload) throw new Error("File upload failed");
+
+                const getFileUrl = await getFileView(fileToUpload.$id);
+                if(!getFileUrl) {
+                    deleteFile(fileToUpload.$id);
+                    throw new Error("File preview failed");
+                }
+                
+       
+       
+
+                image = {
+                    ...image,
+                    imageUrl: getFileUrl,
+                    imageId: fileToUpload.$id,
+                }
+
+        }
+
+     const tagsArray =  tags?.replace(/ /g, "").split(",") || [];
+        const updatedData = {
+            caption,
+            location,
+            tags: tagsArray,
+            imageUrl: image.imageUrl,
+            imageId: image.imageId,
+        }
         const updatedPost = await databases.updateDocument(
             appwriteConfig.databaseID,
             appwriteConfig.postsTableID,
-            post.postId,
-            { 
-                caption: post.caption,
-                location: post.location,
-                tags: post.tags
-            }
+            postId,
+            updatedData
         )
       return updatedPost;
     }catch(err){
@@ -410,6 +483,150 @@ const updatePost = async(post:IUpdatePost) => {
 }
 
 
+const deletePost = async(postId: string, imageId: string) => {
+
+    try{const postToDelete = await databases.getDocument(
+        appwriteConfig.databaseID,
+        appwriteConfig.postsTableID,
+        postId
+    );
+
+    if(!postToDelete) throw new Error("Post not found");
+
+    await databases.deleteDocument(
+        appwriteConfig.databaseID,
+        appwriteConfig.postsTableID,
+        postId
+    );
+
+    await deleteFile(imageId);
+
+    return { success: true };
+    }catch(err){
+        console.log("Error happened deleting post",err);
+        throw err;
+    }
+    
+} 
+
+const getInfinitePosts = async({pageParam}: {pageParam: string | null}) => {
+
+    try{
+       const queries : any[] =  [Query.orderDesc('$updatedAt'), Query.limit(10)]
+
+       if(pageParam){
+        queries.push(Query.cursorAfter(pageParam));
+       }
+
+       const posts = await databases.listDocuments(
+        appwriteConfig.databaseID,
+        appwriteConfig.postsTableID,
+        queries
+       )
+
+       if(!posts) throw new Error("Posts not found");
+
+       // Fetch user data for each post
+       const postsWithUsers = await Promise.all(
+        posts.documents.map(async (post) => {
+
+            const creatorId = typeof post.creator === 'string' ? post.creator : post.creator?.$id;
+            const user = await databases.listDocuments(
+                appwriteConfig.databaseID,
+                appwriteConfig.usersTableID,
+                [Query.equal("$id", creatorId)]
+            );
+            
+            return {
+                ...post,
+                Likes: post.Likes || [],
+                creator: user.documents[0] ? {
+                    name: user.documents[0].name,
+                    username: user.documents[0].username,
+                    imageUrl: user.documents[0].imageUrl,
+                    $id: user.documents[0].$id
+                } : null,
+                user_id: post.creator 
+            };
+        })
+       );
+
+       return {
+        ...posts,
+        documents: postsWithUsers
+       };
+
+    }catch(err){
+        console.log("Error happened getting infinite posts",err);
+        throw err;
+
+    }
+}
+
+const getPostBySearch = async(searchTerm:string | '') => {
+
+    try {
+
+        const posts = await databases.listDocuments(
+            appwriteConfig.databaseID,
+            appwriteConfig.postsTableID,
+            [Query.search('caption', searchTerm)]
+
+        )
+        if(!posts) throw new Error(" Posts not found.")
+
+        // Fetch user data for each post
+        const postsWithUsers = await Promise.all(
+            posts.documents.map(async (post) => {
+
+                const creatorId = typeof post.creator === 'string' ? post.creator : post.creator?.$id;
+                const user = await databases.listDocuments(
+                    appwriteConfig.databaseID,
+                    appwriteConfig.usersTableID,
+                    [Query.equal("$id", creatorId)]
+                );
+                
+                return {
+                    ...post,
+                    Likes: post.Likes || [],
+                    creator: user.documents[0] ? {
+                        name: user.documents[0].name,
+                        username: user.documents[0].username,
+                        imageUrl: user.documents[0].imageUrl,
+                        $id: user.documents[0].$id
+                    } : null,
+                    user_id: post.creator 
+                };
+            })
+        );
+        
+        return {
+            ...posts,
+            documents: postsWithUsers
+        };
+        
+    } catch (error) {
+       console.log("Error happened during fetching posts by search",error) 
+       throw error
+    }
+}
+
+const getUserById = async(userId:string) => {
+    try {
+        const user = await databases.listDocuments(
+            appwriteConfig.databaseID,
+            appwriteConfig.usersTableID
+            [Query.equal('$id',userId)]
+        );
+
+        if(!user) throw new Error("User not found");
+
+        return user.documents[0];
+    } catch (error) {
+        console.log("Error happened during getting user",error)
+        throw error
+    }
+} 
 
 
 
@@ -421,4 +638,5 @@ const updatePost = async(post:IUpdatePost) => {
 
 
 
-export { createUserAccount,signInUser,getCurrentUser,signOutUser,createNewPost,getRecentPosts,likePost,deleteSavedPost,savePost,getSavedPosts,updatePost }
+
+export { createUserAccount,signInUser,getCurrentUser,signOutUser,createNewPost,getRecentPosts,likePost,deleteSavedPost,savePost,getSavedPosts,updatePost,getPostById,deletePost,getInfinitePosts,getPostBySearch,getUserById }
