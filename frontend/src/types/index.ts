@@ -27,6 +27,8 @@ export type IUpdatePost = {
     file:File[];
     location?:string;
     tags?:string;
+    imageUrl:string | null;
+    imageId:string;
 };
 
 export type IDeletePost = {
@@ -75,6 +77,25 @@ export type IUser = {
     email: string;
     imageUrl: string;
     bio: string;
+};
+
+export type PostWithUser = {
+  user_id?: string;
+  creator?: {name: string, username?: string, imageUrl?: string} | null;
+  location?: string;
+  imageUrl?: string;
+  caption?: string;
+  tags?: string | string[];
+  Likes: string[];
+  $createdAt: string;
+  $id: string;
+};
+
+export type SavedPost = {
+  post: string;
+  users: string;
+  $createdAt: string;
+  $id: string;
 };
 
 
