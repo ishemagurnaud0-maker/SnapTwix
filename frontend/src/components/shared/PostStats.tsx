@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useUserContext } from "@/context/AuthContext";
-import {useLikePost,useSavePost,useDeletePost,useGetSavedPosts} from '@/lib/react-query/queries&Mutations'
+import {useLikePost,useSavePost,useDeleteSavedPost,useGetSavedPosts} from '@/lib/react-query/queries&Mutations'
 import type { PostWithUser, SavedPost } from '@/types';
 import {useState,useEffect} from 'react'
 import { checkIsLiked } from "@/lib/utils";
@@ -8,8 +8,8 @@ import type { Models } from "appwrite";
 import Loader from './Loader';
 
 interface PostStatsProps {
-  post: PostWithUser;
-  user_id: string;
+  post?: PostWithUser;
+  user_id?: string | null;
 }
 
 const PostStats = ({ post, user_id }: PostStatsProps) => {
@@ -23,7 +23,7 @@ const PostStats = ({ post, user_id }: PostStatsProps) => {
         // Sync likes state with post data when it changes
         useEffect(() => {
             if (post?.Likes) {
-                const likeIds = post.Likes.map((user:any) =>
+                const likeIds = post?.Likes.map((user:any) =>
                   typeof user === 'string' ? user : user.$id
                 );
                 setLikes(likeIds);
@@ -43,7 +43,7 @@ const PostStats = ({ post, user_id }: PostStatsProps) => {
 
     const { mutate: likePost } = useLikePost();
     const { mutate: savePost, isPending:isSavingPost } = useSavePost();
-    const { mutate: deleteSavedPost, isPending:isDeletingSavedPost } = useDeletePost();
+    const { mutate: deleteSavedPost, isPending:isDeletingSavedPost } = useDeleteSavedPost();
 
     
 
@@ -57,6 +57,8 @@ const PostStats = ({ post, user_id }: PostStatsProps) => {
 const handleLikePost = (e: React.MouseEvent) => {
   e.stopPropagation();
 
+  if (!user_id) return; // Exit early if user_id is null/undefined
+
   let newLikes = [...likes];
   const hasLiked = newLikes.includes(user_id);
 
@@ -68,7 +70,7 @@ const handleLikePost = (e: React.MouseEvent) => {
 
   setLikes(newLikes);
   if (post?.$id) {
-    likePost({ postId: post.$id, likesArray: newLikes });
+    likePost({ postId: post?.$id, likesArray: newLikes });
   }
 
 }
@@ -78,7 +80,7 @@ const handleSavePost = (e: React.MouseEvent) => {
 
     if(savedPostRecord){
         setIsSaved(false);
-        deleteSavedPost(savedPostRecord.$id);
+        deleteSavedPost(savedPostRecord.$id || '');
       }else if (post?.$id && user?.id){
         savePost({ postId: post.$id, userId: user.id });
       }
@@ -89,7 +91,7 @@ const handleSavePost = (e: React.MouseEvent) => {
     <div className="flex justify-between items-center z-20">
         <div className='flex gap-2 mr-5'>
             <img
-                src={checkIsLiked(likes,user_id) ? '/assets/icons/liked.svg' : '/assets/icons/like.svg'}
+                src={user_id && checkIsLiked(likes, user_id) ? '/assets/icons/liked.svg' : '/assets/icons/like.svg'}
                 alt='heart'
                 width={20}
                 height={20}
