@@ -1,7 +1,8 @@
 import Loader from "@/components/shared/Loader";
 import { useGetRecentPosts } from "@/lib/react-query/queries&Mutations";
-import type { Models } from "appwrite";
+import type { PostWithUser } from "@/types";
 import PostCard from "@/components/shared/PostCard.tsx";
+import RightSidebar from "@/components/shared/RightSidebar"
 
 const Home = () => {
   const {data:posts, isPending:isPostLoading} = useGetRecentPosts();
@@ -17,7 +18,7 @@ const Home = () => {
             <div className='flex flex-col gap-10'>
               {/* Posts */}
               <ul className="flex flex-col flex-1 gap-9 w-full">
-                {posts?.documents.map((post:Models.Document) => {
+                {posts?.documents.map((post:PostWithUser) => {
                   return (
                     <PostCard key={post.$id} post={post}/>
                   )
@@ -26,6 +27,9 @@ const Home = () => {
             </div>
           )}
         </div>
+      </div>
+      <div className='hidden xl:block'>
+        <RightSidebar/>
       </div>
     </div>
   )
