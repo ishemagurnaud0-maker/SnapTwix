@@ -12,6 +12,21 @@ interface GridListProps {
 const GridPostList = ({ posts, showUser = true , showStats = true  }: GridListProps) => {
 
     const { user } = useUserContext();
+    
+    if (!posts || posts.length === 0) {
+        return (
+            <div className="flex-center flex-col w-full h-full gap-8">
+                <p className="text-center xl:text-center h3-bold md:h1-semibold w-full text-light-3">Create Your First Post</p>
+
+                <Link to="/create-post" className="flex-center w-full max-w-[260px]">
+                    <button className="flex-center w-full max-w-[260px]">
+                        <img src='/assets/icons/file-upload.svg' alt='create-post' />
+                    </button>
+                </Link>
+            </div> 
+        );
+    }
+    
   return (
     <ul className='grid-container'>
     {posts.map((post) => (

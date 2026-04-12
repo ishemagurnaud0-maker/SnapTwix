@@ -2,7 +2,10 @@
 
 const RightSidebar = () => {
   return (
-    <div>RightSidebar</div>
+    
+    <div className='hidden xl:block grid-cols-1'>
+
+    </div>
   )
 }
 
