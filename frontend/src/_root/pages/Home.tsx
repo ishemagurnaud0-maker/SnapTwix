@@ -28,9 +28,9 @@ const Home = () => {
           )}
         </div>
       </div>
-      <div className='hidden xl:block'>
-        <RightSidebar/>
-      </div>
+      
+
+      
     </div>
   )
 }
