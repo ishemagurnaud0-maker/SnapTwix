@@ -10,6 +10,7 @@ export const appwriteConfig = {
     usersTableID:import.meta.env.VITE_APPWRITE_USERS_TABLE_ID,
     postsTableID:import.meta.env.VITE_APPWRITE_POSTS_TABLE_ID,
     savesTableID:import.meta.env.VITE_APPWRITE_SAVES_TABLE_ID,
+    followersTableID:import.meta.env.VITE_APPWRITE_FOLLOWERS_TABLE_ID,
     
 }
 

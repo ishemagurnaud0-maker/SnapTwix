@@ -113,6 +113,7 @@ const getCurrentUser = async() => {
         if(!currentUser || currentUser.documents.length === 0) {
             return null;
         }
+        
 
         return currentUser.documents[0];
 
@@ -420,7 +421,41 @@ const getSavedPosts = async(userId:string) => {
             ]
         )
 
-        return savedPosts;
+        // Fetch actual post data for each saved post
+        const postsWithUsers = await Promise.all(
+            savedPosts.documents.map(async (savedPost) => {
+                const post = await databases.getDocument(
+                    appwriteConfig.databaseID,
+                    appwriteConfig.postsTableID,
+                    savedPost.post
+                );
+
+                // Fetch user data for the post
+                const creatorId = typeof post.creator === 'string' ? post.creator : post.creator?.$id;
+                const user = await databases.listDocuments(
+                    appwriteConfig.databaseID,
+                    appwriteConfig.usersTableID,
+                    [Query.equal("$id", creatorId)]
+                );
+                
+                return {
+                    ...post,
+                    Likes: post.Likes || [],
+                    creator: user.documents[0] ? {
+                        name: user.documents[0].name,
+                        username: user.documents[0].username,
+                        imageUrl: user.documents[0].imageUrl,
+                        $id: user.documents[0].$id
+                    } : null,
+                    user_id: post.creator 
+                };
+            })
+        );
+
+        return {
+            ...savedPosts,
+            documents: postsWithUsers
+        };
 
     } catch (error) {
         console.log("Error happened getting saved posts",error);
@@ -615,7 +650,7 @@ const getUserById = async(userId:string) => {
     try {
         const user = await databases.listDocuments(
             appwriteConfig.databaseID,
-            appwriteConfig.usersTableID
+            appwriteConfig.usersTableID,
             [Query.equal('$id',userId)]
         );
 
@@ -628,15 +663,165 @@ const getUserById = async(userId:string) => {
     }
 } 
 
+const followUser = async(followerId:string,followedId:string) => {
+    try {
+
+        const existingFollowers = await databases.listDocuments(
+            appwriteConfig.databaseID,
+            appwriteConfig.followersTableID,
+            [Query.equal('followers', followerId), Query.equal('following', followedId)]
+        )
+
+        if(existingFollowers.total > 0) {
+            throw new Error("Already following this user");
+        }
+
+
+       const newFollow = await databases.createDocument(
+        appwriteConfig.databaseID,
+        appwriteConfig.followersTableID,
+        ID.unique(),
+        {
+            followers: followerId, // The user who is following
+            following: followedId // The user being followed
+        }
+       )
+       if(!newFollow) throw new Error("Failed to create followRequest");
+       
+       return newFollow;
+        
+    } catch (err) {
+      console.log("Error establishing follower:", err);
+      throw err;  
+    }
+}
+
+const unfollowUser = async(followerRecordId:string) => {
+    try {
+        const result = await databases.deleteDocument(
+            appwriteConfig.databaseID,
+            appwriteConfig.followersTableID,
+            followerRecordId
+        );
+
+        if(!result) throw new Error("Failed to unfollow");
+
+        return {status:"ok",result};
+        
+    } catch (err) {
+      console.log("Error unfollowing:", err);
+      throw err;  
+    }
+}
+
+const checkIsFollowing = async(followerId:string, followedId:string) => {
+    try {
+       const result = await databases.listDocuments(
+        appwriteConfig.databaseID,
+        appwriteConfig.followersTableID,
+        [Query.equal('followers', followerId), Query.equal('following', followedId)]
+       )
+           
+        console.log(result.documents);
+        console.log(result.documents[0]);
+
+       return result.documents.length > 0 ? result.documents[0] : null;
+        
+    } catch (err) {
+      console.log("Error checking follow request:", err);
+      throw err;  
+    }
+}
+
+
+
+
+const getStats = async(userId:string) => {
+    try{
+        // Get user document
+        const user = await databases.getDocument(
+            appwriteConfig.databaseID,
+            appwriteConfig.usersTableID,
+            userId
+        );
+
+        // Get user's posts
+        const posts = await databases.listDocuments(
+            appwriteConfig.databaseID,
+            appwriteConfig.postsTableID,
+            [Query.equal('creator', userId)]
+        );
+
+        
+       
+
+        const stats = {
+            ...user,
+            posts: posts.documents
+        };
+
+        return stats;
+        
+    }catch(err){
+        console.log("Error happened during getting stats",err)
+        throw err
+    }
+}   
+
+const getUsers = async(limit?:number) => {
+
+    const queries: any[] = [Query.orderDesc('$createdAt')];
+        if(limit){
+            queries.push(Query.limit(limit));
+        }
+
+    try {
+        const users = await databases.listDocuments(
+            appwriteConfig.databaseID,
+            appwriteConfig.usersTableID,
+            queries
+        )
+        if(!users){
+            throw new Error("Users not found")
+        }
+        
+        return users;
+        
+    } catch (err) {
+        console.log("Error happened during getting users",err)
+        throw err;
+    }
+}
+
+
+const getUserFollowCount = async(userId:string) => {
+    try {
+        const followers = await databases.listDocuments(
+            appwriteConfig.databaseID,
+            appwriteConfig.followersTableID,
+            [Query.equal('following', userId)]
+        );
+        return followers.total;
+        
+    } catch (err) {
+        console.log("Error happened during getting user follow count",err)
+        throw err
+    }
+}
+
+
+const getUserFollowingCount = async(userId:string) => {
+    const followedUsers = await databases.listDocuments(
+            appwriteConfig.databaseID,
+            appwriteConfig.followersTableID,
+            [Query.equal('followers', userId)]
+    )
+    return followedUsers.total;
+}
 
 
 
 
 
 
-
-
-
-
-
-export { createUserAccount,signInUser,getCurrentUser,signOutUser,createNewPost,getRecentPosts,likePost,deleteSavedPost,savePost,getSavedPosts,updatePost,getPostById,deletePost,getInfinitePosts,getPostBySearch,getUserById }
+export { createUserAccount,signInUser,getCurrentUser,signOutUser,createNewPost,getRecentPosts,likePost,deleteSavedPost,savePost,getSavedPosts,updatePost,getPostById,deletePost,getInfinitePosts,getPostBySearch,getUserById,getStats,getUsers,followUser,unfollowUser,checkIsFollowing,getUserFollowCount,getUserFollowingCount }
