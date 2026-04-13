@@ -6,7 +6,7 @@ import SignUpForm from './auth/forms/SignUpForm';
 import SignInForm from './auth/forms/SignInForm';
 import AuthLayout from './auth/AuthLayout';
 import RootLayout from './_root/RootLayout';
-import {Home, CreatePosts, LikedPosts,Explore, SavedPosts, AllUsers, EditPost, PostDetails, Profile, UpdateProfile} from './_root/pages';
+import {Home, CreatePosts, LikedPosts,Explore, SavedPosts, AllUsers, EditPost, PostDetails, Profile, UpdateProfile,Followers,Following} from './_root/pages';
 import { Toaster } from './components/ui/toaster';
 
 
@@ -32,6 +32,8 @@ const App = () => {
           <Route path='/profile/:id/*' element={<Profile/>}/>
           <Route path='/update-profile/:id'  element={<UpdateProfile/>}/>
           <Route path='/liked-posts' element={<LikedPosts/>}/>
+          <Route path='/followers' element={<Followers/>}/>
+          <Route path='/following' element={<Following/>}/>
         </Route>
         
 
