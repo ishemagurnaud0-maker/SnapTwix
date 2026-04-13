@@ -4,11 +4,14 @@ import {Link} from 'react-router-dom';
 
 interface StatBoardProps {
   user_id: string;
+  followers:number | undefined;
+  following:number | undefined;
 }
 
-const StatBoard = ({ user_id }: StatBoardProps) => {
+const StatBoard = ({ user_id,followers,following }: StatBoardProps) => {
 
     const {data: user, isPending:isLoadingStats} = useGetStats(user_id);
+    
   return (
         <>
         <div className='flex-center gap-2'>
@@ -23,11 +26,11 @@ const StatBoard = ({ user_id }: StatBoardProps) => {
                         </div>
                         <Link to='/followers' className='text-center'>
                             <p className='text-light-2 small-semibold'>Followers</p>
-                            <p className='base-mediumn text-light-4'>{user?.followers?.length || 0}</p>
+                            <p className='base-mediumn text-light-4'>{followers.$total || 0}</p>
                         </Link>
                         <Link to='/following' className='text-center'>
                             <p className='text-light-2 small-semibold'>Following</p>
-                            <p className='base-medium text-light-4'>{user?.following?.length || 0}</p>
+                            <p className='base-medium text-light-4'>{following?.total || 0}</p>
                         </Link>
                     </>
                 )
