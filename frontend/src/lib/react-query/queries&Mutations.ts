@@ -6,7 +6,7 @@ import {
     useInfiniteQuery,
     
 } from "@tanstack/react-query";
-import { createUserAccount,signInUser,signOutUser,createNewPost,getRecentPosts,likePost, savePost, deleteSavedPost, getSavedPosts,updatePost,getCurrentUser, getPostById, deletePost,getInfinitePosts,getPostBySearch, getUserById } from "../appwrite/api";
+import { createUserAccount,signInUser,signOutUser,createNewPost,getRecentPosts,likePost, savePost, deleteSavedPost, getSavedPosts,updatePost,getCurrentUser, getPostById, deletePost,getInfinitePosts,getPostBySearch, getUserById, getStats,getUsers,followUser,unfollowUser,checkIsFollowing,getUserFollowCount,getUserFollowingCount } from "../appwrite/api";
 import { QUERY_KEYS } from "./queryKeys";
 
 
@@ -221,3 +221,114 @@ export const useGetUserById = (userId:string) => {
         enabled: !!userId
     })
 }
+
+export const useGetStats = (userId:string) => {
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_USER_STATS, userId],
+        queryFn: () => getStats(userId),
+        enabled: !!userId
+    })
+}
+
+export const useUpdateUser = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (user: { userId: string; name: string;file: File[]; imageUrl: string; imageId?: string }) => {
+            // This would need to be implemented in the API layer
+            // For now, returning a mock implementation
+            return Promise.resolve({
+                $id: user.userId,
+                name: user.name,
+                imageUrl: user.imageUrl,
+            });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_CURRENT_USER]
+            });
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.GET_USER_BY_ID]
+            });
+        }
+    })
+}
+
+
+export const useGetUsers = (limit?:number) => {
+    return useQuery({
+        queryKey:[QUERY_KEYS.GET_USERS],
+        queryFn: () => getUsers(limit)
+    });
+}
+
+export const useFollowUser = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({followerId,followedId}:{followerId:string,followedId:string}) => followUser(followerId,followedId),
+        onSuccess: (_,variables) => {
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.CHECK_IS_FOLLOWING]
+            });
+
+            queryClient.invalidateQueries({
+                queryKey:[QUERY_KEYS.GET_FOLLOWERS, variables.followedId]
+            })
+
+            queryClient.invalidateQueries({
+                queryKey:[QUERY_KEYS.CHECK_IS_FOLLOWING]
+            })
+
+
+        }
+    })
+}
+
+export const useUnfollowUser = () => {
+
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (followerRecordId:string) => unfollowUser(followerRecordId),
+
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.CHECK_IS_FOLLOWING]
+            });
+
+            queryClient.invalidateQueries({
+                queryKey:[QUERY_KEYS.GET_FOLLOWERS]
+            })
+
+            queryClient.invalidateQueries({
+                queryKey:[QUERY_KEYS.CHECK_IS_FOLLOWING]
+            })
+
+
+        }
+    })
+}
+
+export const useCheckIsFollowing = (followerId:string, followedId:string) => {
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_USER_BY_ID, followerId, followedId],
+        queryFn: () => checkIsFollowing(followerId, followedId),
+        enabled: !!(followerId && followedId)
+    })
+}
+
+export const useGetUserFollowCount = (userId:string) => {
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_FOLLOWERS, userId],
+        queryFn: () => getUserFollowCount(userId),
+        enabled: !!userId
+    })
+}
+
+export const useGetUserFollowingCount = (userId:string) => {
+    return useQuery({
+        queryKey: [QUERY_KEYS.GET_FOLLOWING, userId],
+        queryFn: () => getUserFollowingCount(userId),
+        enabled: !!userId
+    })
+}
+
+

@@ -1,5 +1,3 @@
-
-
 const QUERY_KEYS = {
  // AUTH KEYS
   CREATE_USER_ACCOUNT: "createUserAccount",
@@ -8,6 +6,10 @@ const QUERY_KEYS = {
   GET_CURRENT_USER: "getCurrentUser",
   GET_USERS: "getUsers",
   GET_USER_BY_ID: "getUserById",
+  GET_USER_STATS: "getUserStats",
+  CHECK_IS_FOLLOWING: "checkIsFollowing",
+  GET_FOLLOWERS: "getFollowers",
+  GET_FOLLOWING: "getFollowing",
 
   // POST KEYS
   GET_POSTS: "getPosts",
