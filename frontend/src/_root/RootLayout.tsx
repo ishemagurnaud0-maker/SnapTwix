@@ -4,6 +4,7 @@ import Bottombar from "@/components/shared/Bottombar"
 
 
 import { Outlet } from "react-router-dom"
+import { RightSidebar } from "@/components/shared"
 
 const RootLayout = () => {
   return (
@@ -14,6 +15,7 @@ const RootLayout = () => {
       
         <section className="flex flex-1 h-full">
           <Outlet/>
+           <RightSidebar  />
         </section>
 
       <Bottombar/>
