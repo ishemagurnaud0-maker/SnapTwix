@@ -76,7 +76,8 @@ export type IUser = {
     username: string;
     email: string;
     imageUrl: string;
-    bio: string;
+    bio?: string;
+    posts?: PostWithUser[];
 };
 
 export type PostWithUser = {
