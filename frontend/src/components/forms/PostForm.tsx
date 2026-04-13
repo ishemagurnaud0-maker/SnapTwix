@@ -17,29 +17,23 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import FileUploader from '@/components/shared/FileUploader'
 import { Input } from "../ui/Input";
-import type { Models } from "appwrite";
-
+import type { PostDocument } from "@/types/post";
 
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useUserContext } from "@/context/AuthContext";
 import { useCreatePost } from "@/lib/react-query/queries&Mutations";
+import {useUpdatePost} from "@/lib/react-query/queries&Mutations";
+import { Loader } from "lucide-react";
 
-
-
-interface PostDocument extends Models.Document {
-  caption: string;
-  location: string;
-  tags: string;
-  imageUrl: string;
-}
 
 interface PostFormProps {
   post?:PostDocument; 
+  action?: 'Create' | 'Update';
 }
 
 
-const formschema = z.object({
+const createPostSchema = z.object({
   caption: z.string().min(1, "Caption is required"),
   location:z.string().min(6, "Location is required"),
   tags: z.string().min(1, "Tags are required"),
@@ -48,10 +42,20 @@ const formschema = z.object({
   })).min(1, "At least one file is required")
 })
 
-const PostForm = ({post}: PostFormProps) => {
-  const form = useForm<z.infer<typeof formschema>>({
+const updatePostSchema = z.object({
+  caption: z.string().min(1, "Caption is required"),
+  location:z.string().min(6, "Location is required"),
+  tags: z.string().min(1, "Tags are required"),
+  file: z.array(z.custom<File>((val) => val instanceof File, {
+    message: "Must be a File object"
+  })).optional()
+})
+
+const PostForm = ({post, action}: PostFormProps) => {
+  const schema = action === 'Create' ? createPostSchema : updatePostSchema;
+  const form = useForm<z.infer<typeof schema>>({
     reValidateMode: "onChange",
-    resolver: zodResolver(formschema),
+    resolver: zodResolver(schema),
     defaultValues: {
       caption:post ? post.caption : "",
       tags:post ? post.tags : "",
@@ -64,12 +68,30 @@ const PostForm = ({post}: PostFormProps) => {
   const {toast} = useToast();
   const navigate = useNavigate();
   const {mutateAsync: createNewPost, isPending:isCreatingPost} = useCreatePost()
+ const {mutateAsync: updatePost, isPending:isLoadingUpdate} = useUpdatePost()
 
-
-  const onSubmit = async(data: z.infer<typeof formschema>) => {
+  const onSubmit = async(data: z.infer<typeof schema>) => {
 try{
+
+  if(post && action === "Update"){
+
+    const updatedPost = await updatePost({
+      ...data,
+      postId: post.$id,
+      imageId: post.imageId,
+      imageUrl: post.imageUrl,
+      file: data.file || [],
+    })
     
-    const postData = {...data, creator: user.id}
+    if(!updatedPost){
+      toast({title:"Please try again!", variant:"destructive"})
+    }
+    
+   return navigate(`/posts/${post.$id}`);
+  
+  }
+    
+    const postData = {...data, creator: user.id, file: data.file || []}
     
     const newPost = await createNewPost(postData);
 
@@ -85,6 +107,8 @@ try{
 
       
       }
+
+      
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full max-w-5xl">
@@ -152,7 +176,7 @@ try{
         />
           <div className="flex gap-4 items-center justify-end">
             <Button type='button' variant='ghost' className='shad-button_ghost'>Reset</Button>
-            <Button type='submit' className='shad-button_primary'>Submit</Button>
+            <Button type='submit' className='shad-button_primary' disabled={isCreatingPost || isLoadingUpdate}>{isCreatingPost || isLoadingUpdate && <Loader className='animate-spin' />} {action === 'Create' ? 'Create Post' : 'Update Post'}</Button>
           </div>
         
         
