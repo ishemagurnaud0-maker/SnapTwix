@@ -6,7 +6,7 @@
  
 ## 📸 Screenshots
 
-| Home Feed | Profile Page | Explore | 
+| Home Feed | Profile Page | Saved | 
 |---|---|---|
 | ![Home](./frontend/public/assets/app_img/Home.png) | ![Profile](./frontend/public/assets/app_img/Profile.png) | ![SavePosts](./frontend/public/assets/app_img/Saved.png) | 
  
