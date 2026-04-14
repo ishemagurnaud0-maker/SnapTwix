@@ -8,7 +8,7 @@
 
 | Home Feed | Profile Page | Explore |
 |---|---|---|
-| ![Home](./assets/app_img/Home.png) | ![Profile](./assets/app_img/Profile.png) | ![SavePosts](./assets/app_img/Saved.png) |
+| ![Home](./app_img/Home.png) | ![Profile](./app_img/Profile.png) | ![SavePosts](./app_img/Saved.png) |
  
 ---
  
