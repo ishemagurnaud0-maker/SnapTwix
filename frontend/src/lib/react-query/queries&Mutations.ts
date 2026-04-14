@@ -279,7 +279,7 @@ export const useUnfollowUser = () => {
 
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({followerRecordId, followerId, followedId}:{followerRecordId:string, followerId:string, followedId:string}) => unfollowUser(followerRecordId),
+        mutationFn: ({followerRecordId}:{followerRecordId:string, followerId:string, followedId:string}) => unfollowUser(followerRecordId),
 
         onSuccess: (_,variables) => {
             queryClient.invalidateQueries({
