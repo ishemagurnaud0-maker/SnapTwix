@@ -1,4 +1,4 @@
-import type { INewUser, INewPost, IUpdatePost } from "@/types";
+import type { INewUser, INewPost, IUpdatePost, IUpdateUser } from "@/types";
 import { 
     useMutation,
     useQuery,
@@ -6,7 +6,7 @@ import {
     useInfiniteQuery,
     
 } from "@tanstack/react-query";
-import { createUserAccount,signInUser,signOutUser,createNewPost,getRecentPosts,likePost, savePost, deleteSavedPost, getSavedPosts,updatePost,getCurrentUser, getPostById, deletePost,getInfinitePosts,getPostBySearch, getUserById, getStats,getUsers,followUser,unfollowUser,checkIsFollowing,getUserFollowCount,getUserFollowingCount } from "../appwrite/api";
+import { createUserAccount,signInUser,signOutUser,createNewPost,getRecentPosts,likePost, savePost, deleteSavedPost, getSavedPosts,updatePost,getCurrentUser, getPostById, deletePost,getInfinitePosts,getPostBySearch, getUserById, getStats,getUsers,followUser,unfollowUser,checkIsFollowing,getUserFollowCount,getUserFollowingCount,updateUser } from "../appwrite/api";
 import { QUERY_KEYS } from "./queryKeys";
 
 
@@ -233,15 +233,7 @@ export const useGetStats = (userId:string) => {
 export const useUpdateUser = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (user: { userId: string; name: string;file: File[]; imageUrl: string; imageId?: string }) => {
-            // This would need to be implemented in the API layer
-            // For now, returning a mock implementation
-            return Promise.resolve({
-                $id: user.userId,
-                name: user.name,
-                imageUrl: user.imageUrl,
-            });
-        },
+        mutationFn: (user:IUpdateUser) => updateUser(user),
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: [QUERY_KEYS.GET_CURRENT_USER]
@@ -267,7 +259,7 @@ export const useFollowUser = () => {
         mutationFn: ({followerId,followedId}:{followerId:string,followedId:string}) => followUser(followerId,followedId),
         onSuccess: (_,variables) => {
             queryClient.invalidateQueries({
-                queryKey: [QUERY_KEYS.CHECK_IS_FOLLOWING]
+                queryKey: [QUERY_KEYS.CHECK_IS_FOLLOWING, variables.followerId, variables.followedId]
             });
 
             queryClient.invalidateQueries({
@@ -275,7 +267,7 @@ export const useFollowUser = () => {
             })
 
             queryClient.invalidateQueries({
-                queryKey:[QUERY_KEYS.CHECK_IS_FOLLOWING]
+                queryKey:[QUERY_KEYS.GET_FOLLOWING, variables.followerId]
             })
 
 
@@ -287,19 +279,19 @@ export const useUnfollowUser = () => {
 
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (followerRecordId:string) => unfollowUser(followerRecordId),
+        mutationFn: ({followerRecordId, followerId, followedId}:{followerRecordId:string, followerId:string, followedId:string}) => unfollowUser(followerRecordId),
 
-        onSuccess: () => {
+        onSuccess: (_,variables) => {
             queryClient.invalidateQueries({
-                queryKey: [QUERY_KEYS.CHECK_IS_FOLLOWING]
+                queryKey: [QUERY_KEYS.CHECK_IS_FOLLOWING, variables.followerId, variables.followedId]
             });
 
             queryClient.invalidateQueries({
-                queryKey:[QUERY_KEYS.GET_FOLLOWERS]
+                queryKey:[QUERY_KEYS.GET_FOLLOWERS, variables.followedId]
             })
 
             queryClient.invalidateQueries({
-                queryKey:[QUERY_KEYS.CHECK_IS_FOLLOWING]
+                queryKey:[QUERY_KEYS.GET_FOLLOWING, variables.followerId]
             })
 
 
