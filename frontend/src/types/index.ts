@@ -8,9 +8,9 @@ export type IUpdateUser = {
     userId:string;
     name:string;
     username:string;
-    url:string;
-    bio:string;
+    imageUrl:string;
     file:File[];
+    imageId:string;
 };
 
 export type INewPost = {
