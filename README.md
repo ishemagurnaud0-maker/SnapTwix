@@ -8,7 +8,7 @@
 
 | Home Feed | Profile Page | Explore | Demo |
 |---|---|---|---|
-| ![Home](./assets/app_img/Home.png) | ![Profile](./assets/app_img/Profile.png) | ![SavePosts](./assets/app_img/Saved.png) | ![Home Feed Demo](./assets/app_img/Home_Feed_Demo.png) |
+| ![Home](./frontend/public/assets/app_img/Home.png) | ![Profile](./frontend/public/assets/app_img/Profile.png) | ![SavePosts](./frontend/public/assets/app_img/Saved.png) | ![Home Feed Demo](./frontend/public/assets/app_img/Home_Feed_Demo.png) |
  
 ---
  
