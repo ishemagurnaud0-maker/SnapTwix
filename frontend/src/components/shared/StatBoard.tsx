@@ -4,8 +4,8 @@ import {Link} from 'react-router-dom';
 
 interface StatBoardProps {
   user_id: string;
-  followers:number | undefined;
-  following:number | undefined;
+  followers:number;
+  following:number ;
 }
 
 const StatBoard = ({ user_id,followers,following }: StatBoardProps) => {
@@ -26,11 +26,11 @@ const StatBoard = ({ user_id,followers,following }: StatBoardProps) => {
                         </div>
                         <Link to='/followers' className='text-center'>
                             <p className='text-light-2 small-semibold'>Followers</p>
-                            <p className='base-mediumn text-light-4'>{followers.$total || 0}</p>
+                            <p className='base-mediumn text-light-4'>{followers || 0}</p>
                         </Link>
                         <Link to='/following' className='text-center'>
                             <p className='text-light-2 small-semibold'>Following</p>
-                            <p className='base-medium text-light-4'>{following?.total || 0}</p>
+                            <p className='base-medium text-light-4'>{following || 0}</p>
                         </Link>
                     </>
                 )
