@@ -1,4 +1,4 @@
-import type { INewPost, INewUser,IUpdatePost } from "@/types";
+import type { INewPost, INewUser,IUpdatePost, IUpdateUser } from "@/types";
 import { account,avatars,databases,appwriteConfig,storage } from "./config";
 import { ID, Query } from "appwrite";
 
@@ -166,8 +166,7 @@ const createNewPost = async(post:INewPost) => {
         }
 
         const fileUrl = await getFileView(uploadedFile.$id);
-        console.log('File ID:', uploadedFile.$id);
-        console.log('Generated URL:', fileUrl);
+        
         if(!fileUrl){
             deleteFile(uploadedFile.$id);
             throw new Error("Failed to get file preview")
@@ -708,7 +707,11 @@ const unfollowUser = async(followerRecordId:string) => {
 
         return {status:"ok",result};
         
-    } catch (err) {
+    } catch (err: any) {
+      // If document doesn't exist, consider it a successful unfollow
+      if (err.code === 404) {
+        return {status:"ok", message: "Already unfollowed"};
+      }
       console.log("Error unfollowing:", err);
       throw err;  
     }
@@ -722,8 +725,7 @@ const checkIsFollowing = async(followerId:string, followedId:string) => {
         [Query.equal('followers', followerId), Query.equal('following', followedId)]
        )
            
-        console.log(result.documents);
-        console.log(result.documents[0]);
+       
 
        return result.documents.length > 0 ? result.documents[0] : null;
         
@@ -819,9 +821,50 @@ const getUserFollowingCount = async(userId:string) => {
     return followedUsers.total;
 }
 
+const updateUser = async(user:IUpdateUser) => {
+    const {userId,name,username,file} = user;
+
+    try {
+             if (!file || !Array.isArray(file) || file.length === 0) {
+            throw new Error("No file provided");
+        }
+
+        const fileToUpload = file[0];
+
+        const uploadedFile = await uploadFile(fileToUpload);
+        if(!uploadedFile) throw new Error("No uploaded file.")
+
+        const fileUrl = await getFileView(uploadedFile.$id);
+        if(!fileUrl){
+             await deleteFile(uploadedFile.$id);
+            throw new Error("No file URL");
+         }
+
+            const updatedUser = await databases.updateDocument(
+                appwriteConfig.databaseID,
+                appwriteConfig.usersTableID,
+                userId,
+                {
+                   name,
+                   username,
+                   imageUrl:fileUrl,
+                   imageId:uploadedFile.$id,
+                   
+                }
+            )
+
+            if(!updatedUser) throw new Error("User failed to be updated.")
+            return updatedUser;
+        
+    } catch (err) {
+        console.log("Error happened during updating user",err)
+        throw err;  
+    }
+}
 
 
 
 
 
-export { createUserAccount,signInUser,getCurrentUser,signOutUser,createNewPost,getRecentPosts,likePost,deleteSavedPost,savePost,getSavedPosts,updatePost,getPostById,deletePost,getInfinitePosts,getPostBySearch,getUserById,getStats,getUsers,followUser,unfollowUser,checkIsFollowing,getUserFollowCount,getUserFollowingCount }
+
+export { createUserAccount,signInUser,getCurrentUser,signOutUser,createNewPost,getRecentPosts,likePost,deleteSavedPost,savePost,getSavedPosts,updatePost,getPostById,deletePost,getInfinitePosts,getPostBySearch,getUserById,getStats,getUsers,followUser,unfollowUser,checkIsFollowing,getUserFollowCount,getUserFollowingCount,updateUser }
