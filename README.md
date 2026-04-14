@@ -6,9 +6,9 @@
  
 ## 📸 Screenshots
 
-| Home Feed | Profile Page | Explore |
-|---|---|---|
-| ![Home](./assets/app_img/Home.png) | ![Profile](./assets/app_img/Profile.png) | ![SavePosts](./assets/app_img/Saved.png) |
+| Home Feed | Profile Page | Explore | Demo |
+|---|---|---|---|
+| ![Home](./assets/app_img/Home.png) | ![Profile](./assets/app_img/Profile.png) | ![SavePosts](./assets/app_img/Saved.png) | ![Home Feed Demo](./assets/app_img/Home_Feed_Demo.png) |
  
 ---
  
