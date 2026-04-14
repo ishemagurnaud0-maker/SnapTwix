@@ -1,7 +1,6 @@
-import {useNavigate,Link} from 'react-router-dom'
 import  Loader from "@/components/shared/Loader"
 import {useGetUsers} from '@/lib/react-query/queries&Mutations'
-import {toast, useToast} from '@/hooks/use-toast'
+import {useToast} from '@/hooks/use-toast'
 import UserCard from '@/components/shared/UserCard.tsx'
 
 const AllUsers = () => {

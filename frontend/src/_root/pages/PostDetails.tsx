@@ -1,5 +1,5 @@
-import {useGetPostById,useDeletePost} from "@/lib/react-query/queries&Mutations";
-import { useParams,Link,useNavigate } from "react-router-dom";
+import {useGetPostById} from "@/lib/react-query/queries&Mutations";
+import { useParams,Link } from "react-router-dom";
 import Loader from '@/components/shared/Loader'
 import { useUserContext } from "@/context/AuthContext";
 import { formatDate } from "@/lib/utils";
@@ -10,8 +10,6 @@ const PostDetails = () => {
 
 const {id} = useParams();
 const { user } = useUserContext();
-const navigate = useNavigate();
-
 
 const {data:post, isPending} = useGetPostById(id as string);
 

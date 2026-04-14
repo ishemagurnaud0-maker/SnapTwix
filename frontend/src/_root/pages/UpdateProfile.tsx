@@ -1,6 +1,6 @@
 
 import * as z from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, type ControllerRenderProps } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
@@ -117,7 +117,7 @@ const UpdateProfile = () => {
             <FormField
               control={form.control}
               name="file"
-              render={({ field }) => (
+              render={({ field }: { field: ControllerRenderProps<any> }) => (
                 <FormItem className="flex">
                   <FormControl>
                     <FileUploader
@@ -133,7 +133,7 @@ const UpdateProfile = () => {
             <FormField
               control={form.control}
               name="name"
-              render={({ field }) => (
+              render={({ field }: { field: ControllerRenderProps<any> }) => (
                 <FormItem>
                   <FormLabel className="shad-form_label">Name</FormLabel>
                   <FormControl>
@@ -147,7 +147,7 @@ const UpdateProfile = () => {
             <FormField
               control={form.control}
               name="username"
-              render={({ field }) => (
+              render={({ field }: { field: ControllerRenderProps<any> }) => (
                 <FormItem>
                   <FormLabel className="shad-form_label">Username</FormLabel>
                   <FormControl>
@@ -166,7 +166,7 @@ const UpdateProfile = () => {
             <FormField
               control={form.control}
               name="email"
-              render={({ field }) => (
+              render={({ field }: { field: ControllerRenderProps<any> }) => (
                 <FormItem>
                   <FormLabel className="shad-form_label">Email</FormLabel>
                   <FormControl>

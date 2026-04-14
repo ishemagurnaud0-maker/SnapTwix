@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, type ControllerRenderProps } from "react-hook-form"
 import * as z from 'zod';
 import { Button } from "@/components/ui/Button"
 import {
@@ -115,7 +115,7 @@ try{
        <FormField
           control={form.control}
           name="caption"
-          render={({ field }) => (
+          render={({ field }: { field: ControllerRenderProps<any> }) => (
             <FormItem>
               <FormLabel className='shad-form_label'>Caption</FormLabel>
               <FormControl>
@@ -130,7 +130,7 @@ try{
          <FormField
           control={form.control}
           name="file"
-          render={({ field }) => (
+          render={({ field }: { field: ControllerRenderProps<any> }) => (
             <FormItem>
               <FormLabel className='shad-form_label'>Add Photos</FormLabel>
               <FormControl>
@@ -148,7 +148,7 @@ try{
          <FormField
           control={form.control}
           name="location"
-          render={({ field }) => (
+          render={({ field }: { field: ControllerRenderProps<any> }) => (
             <FormItem>
               <FormLabel className='shad-form_label'>Add Location</FormLabel>
               <FormControl>
@@ -163,7 +163,7 @@ try{
          <FormField
           control={form.control}
           name="tags"
-          render={({ field }) => (
+          render={({ field }: { field: ControllerRenderProps<any> }) => (
             <FormItem>
               <FormLabel className='shad-form_label'>Add Tags (separated by comma ',')</FormLabel>
               <FormControl>

@@ -1,6 +1,6 @@
    import * as z from 'zod';
 import {useToast} from '@/hooks/use-toast';
-import { useForm } from "react-hook-form"
+import { useForm, type ControllerRenderProps } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {Button} from '@/components/ui/Button';
 import {Form,FormControl,FormField,FormItem,FormLabel,FormMessage} from '@/components/ui/Form';
@@ -16,7 +16,7 @@ const SignInForm = () => {
 
   const {toast} = useToast();
   const navigate = useNavigate();
-  const {checkAuthUser,isLoading:isUserLoading} = useUserContext();
+  const {checkAuthUser} = useUserContext();
   const {mutateAsync: signInUser, isPending:isSigningIn} = useSignInAccount();
   
 
@@ -77,7 +77,7 @@ const SignInForm = () => {
            <FormField
               control={form.control}
               name="email"
-              render={({ field }) => (
+              render={({ field }: { field: ControllerRenderProps<any> }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
@@ -91,7 +91,7 @@ const SignInForm = () => {
             <FormField
               control={form.control}
               name="password"
-              render={({ field }) => (
+              render={({ field }: { field: ControllerRenderProps<any> }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>

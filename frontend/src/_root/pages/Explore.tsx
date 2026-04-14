@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/Input"
-import { useState,useRef,useEffect } from "react"
+import { useState,useEffect } from "react"
 import  useDebounce  from "@/post_hooks/useDebounce"
 import GridPostList from "@/components/shared/GridPostList"
 import SearchResults from "@/components/shared/SearchResults.tsx"
