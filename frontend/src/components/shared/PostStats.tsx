@@ -22,14 +22,14 @@ const PostStats = ({ post, user_id }: PostStatsProps) => {
 
         // Sync likes state with post data when it changes
         useEffect(() => {
-            if (post?.Likes) {
+            if (post?.Likes && Array.isArray(post.Likes)) {
                 const likeIds = post?.Likes.map((user:any) =>
                   typeof user === 'string' ? user : user.$id
                 );
                 setLikes(likeIds);
+            } else {
+                setLikes([]);
             }
-
-              
         }, [post]);
 
     const { user } = useUserContext();
