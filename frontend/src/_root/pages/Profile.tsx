@@ -40,8 +40,10 @@ const {mutate:unfollowUser} = useUnfollowUser();
   const isFollowingThisUser = followRecord ? true : false;
 
   const handleFollowToggle = () => {
-    if (isFollowingThisUser) {
-      unfollowUser(followRecord?.$id || '');
+    if (isFollowingThisUser){
+      if (followRecord?.$id) {
+        unfollowUser({ followerRecordId: followRecord.$id, followerId: user.id, followedId: id || '' });
+      }
     } else {
       followUser({ followerId: user.id, followedId: id || '' });
     }
@@ -57,7 +59,7 @@ const {mutate:unfollowUser} = useUnfollowUser();
             <img src={`${profileUser?.imageUrl || '/assets/icons/profile-placeholder.svg'}`} alt="icreator-image" className='w-24 h-24 rounded-full'/> 
             <div className="flex flex-col w-full justify-start">
               <h1 className="text-center xl:text-left h3-bold md:h1-semibold w-full">{profileUser?.name}</h1>
-              <p className="medium-semibold text-light-3 ">{profileUser?.username}</p>
+              <p className="medium-semibold text-light-3 text-center xl:text-left">{profileUser?.username}</p>
               <div className="flex gap-8 mt-10 items-center justify-center xl:justify-start flex-wrap z-20 ">
                 {isFetchingProfileData ? (
                   <div className="flex gap-8">
@@ -75,15 +77,15 @@ const {mutate:unfollowUser} = useUnfollowUser();
                     </div>
                   </div>
                 ) : (
-                  profileUser?.$id && <StatBoard user_id={profileUser.$id} followers={followers} following={following}/>
+                  profileUser?.$id && <StatBoard user_id={profileUser.$id} followers={followers || 0} following={following || 0}/>
                 )}
               </div>
              
 
-            </div>
+            </div>  
                  {
                 user.id === id && (
-                <Link to={`/update-profile/${profileUser?.id}`} className='h-12 bg-dark-4 px-5 text-light-1 flex-center gap-2 rounded-lg'>
+                <Link to={`/update-profile/${user.id}`} className='h-12 bg-dark-4 px-5 text-light-1 flex-center gap-2 rounded-lg'>
                   <img 
                   src='/assets/icons/edit.svg'
                   alt="edit"
@@ -98,7 +100,7 @@ const {mutate:unfollowUser} = useUnfollowUser();
               }
            </div>
            <div className={user.id === id ? 'hidden' : 'block'}>
-            <Button type='button' className={isFollowingThisUser ? 'shad-button_ghost' : 'shad-button_primary px-8'} onClick={handleFollowToggle}>
+            <Button type='button' className={isFollowingThisUser ? ' bg-dark-4' : 'shad-button_primary px-8'} onClick={handleFollowToggle}>
               {isFollowingThisUser ? 'Unfollow' : 'Follow'}
             </Button>
            </div>
@@ -135,7 +137,7 @@ const {mutate:unfollowUser} = useUnfollowUser();
         <Routes>
         <Route
           index
-          element={<GridPostList posts={posts} showUser={false} showStats={false}/>}
+          element={<GridPostList posts={posts} showUser={false} showStats={true}/>}
         />
         {profileUser?.id === user.id && (
           <Route path="/liked-posts" element={<LikedPosts />} />
