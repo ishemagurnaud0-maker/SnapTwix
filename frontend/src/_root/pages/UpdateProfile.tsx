@@ -29,8 +29,14 @@ const UpdateProfile = () => {
   const { id } = useParams();
   const { user, setUser } = useUserContext();
 
+  // Redirect if no id provided
+  if (!id) {
+    navigate('/profile');
+    return null;
+  }
+
   // Queries
-  const { data: currentUser } = useGetUserById(id || "");
+  const { data: currentUser } = useGetUserById(id);
   const { mutateAsync: updateUser, isPending: isLoadingUpdate } =
     useUpdateUser();
 
@@ -69,6 +75,7 @@ const UpdateProfile = () => {
   const handleUpdate = async (value: z.infer<typeof ProfileValidation>) => {
     const updatedUser = await updateUser({
       userId: currentUser.$id,
+      username: value.username,
       name: value.name,
       file: value.file,
       imageUrl: currentUser.imageUrl,
@@ -148,7 +155,7 @@ const UpdateProfile = () => {
                       type="text"
                       className="shad-input"
                       {...field}
-                      disabled
+                      
                     />
                   </FormControl>
                   <FormMessage />
