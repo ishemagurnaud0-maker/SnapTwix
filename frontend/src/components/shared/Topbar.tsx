@@ -27,7 +27,7 @@ useEffect(() => {
                <img src="/assets/icons/logout.svg" alt="logout" /> 
             </Button>
             <Link to={`/profile/${user.id}`} className="flex-center gap-3">
-                <img src={user.imageUrl || "/assets/icons/profile-placeholder.svg"} alt="profile" width={40} height={40} className="rounded-full" />
+                <img src={user.imageUrl || "/assets/icons/profile-placeholder.svg"} alt="profile"  className="rounded-full w-9 h-9 rounded-full'" />
             </Link>
         </div>
     </div>
