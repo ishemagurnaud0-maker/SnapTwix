@@ -24,11 +24,20 @@ const handleDeletePost = () => {
         {isPending ? <Loader/> : 
         <div className="post_details-card">
 
-          <img 
-          src={post?.imageUrl || '/assets/icons/profile-placeholder.svg'} 
-          alt="post" 
-        
-           />
+          {/* Display media (image or video) */}
+          {post?.imageUrl?.endsWith('.mp4') || post?.imageUrl?.endsWith('.mov') || post?.imageUrl?.endsWith('.avi') || post?.imageUrl?.endsWith('.mkv') || post?.imageUrl?.endsWith('.webm') ? (
+            <video 
+              src={post?.imageUrl} 
+              controls 
+              className="w-full h-auto max-h-96 rounded-lg object-cover"
+            />
+          ) : (
+            <img 
+              src={post?.imageUrl || '/assets/icons/profile-placeholder.svg'} 
+              alt="post" 
+              className="w-full h-auto max-h-96 rounded-lg object-cover"
+            />
+          )}
               <div className='post_details-info'>
 
                 <div className='flex-between w-full'>

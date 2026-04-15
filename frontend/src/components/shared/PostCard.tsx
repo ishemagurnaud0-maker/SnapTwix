@@ -55,6 +55,23 @@ const PostCard = ({ post }: {post: PostWithUser}) => {
         <Link to={`/posts/${post.$id}`}>
 
         <div className="small-medium lg:base-medium lg:base-medium py-5">
+            
+            {/* Display media (image or video) */}
+            <div className="flex justify-center mb-4">
+                {post?.imageUrl?.endsWith('.mp4') || post?.imageUrl?.endsWith('.mov') || post?.imageUrl?.endsWith('.avi') || post?.imageUrl?.endsWith('.mkv') || post?.imageUrl?.endsWith('.webm') ? (
+                    <video 
+                        src={post.imageUrl} 
+                        controls 
+                        className="w-full h-auto max-h-96 rounded-lg object-cover"
+                    />
+                ) : (
+                    <img 
+                        src={post.imageUrl} 
+                        alt="post" 
+                        className="post-card-img"
+                    />
+                )}
+            </div>
 
             <p>{post.caption}</p>
 
@@ -76,12 +93,9 @@ const PostCard = ({ post }: {post: PostWithUser}) => {
 
         </div>
 
-        <img src={post.imageUrl || '/assets/icons/profile-placeholder.svg'} alt="post image" className='post-card_img' />
-
         </Link>
 
         <PostStats post={post} user_id={user.id}/>
-
 
 
 

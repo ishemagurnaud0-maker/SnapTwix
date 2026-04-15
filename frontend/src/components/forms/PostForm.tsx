@@ -37,8 +37,8 @@ const createPostSchema = z.object({
   caption: z.string().min(1, "Caption is required"),
   location:z.string().min(6, "Location is required"),
   tags: z.string().min(1, "Tags are required"),
-  file: z.array(z.custom<File>((val) => val instanceof File, {
-    message: "Must be a File object"
+  file: z.array(z.custom<File>((val) => val instanceof File && (val.type.startsWith('image/') || val.type.startsWith('video/')), {
+    message: "Must be an image or video file"
   })).min(1, "At least one file is required")
 })
 
@@ -46,8 +46,8 @@ const updatePostSchema = z.object({
   caption: z.string().min(1, "Caption is required"),
   location:z.string().min(6, "Location is required"),
   tags: z.string().min(1, "Tags are required"),
-  file: z.array(z.custom<File>((val) => val instanceof File, {
-    message: "Must be a File object"
+  file: z.array(z.custom<File>((val) => val instanceof File && (val.type.startsWith('image/') || val.type.startsWith('video/')), {
+    message: "Must be an image or video file"
   })).optional()
 })
 
@@ -132,7 +132,7 @@ try{
           name="file"
           render={({ field }: { field: ControllerRenderProps<any> }) => (
             <FormItem>
-              <FormLabel className='shad-form_label'>Add Photos</FormLabel>
+              <FormLabel className='shad-form_label'>Add Photos and Videos</FormLabel>
               <FormControl>
                 <FileUploader
                 fieldChange={field.onChange}
