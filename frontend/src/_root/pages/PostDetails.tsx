@@ -2,7 +2,7 @@ import {useGetPostById} from "@/lib/react-query/queries&Mutations";
 import { useParams,Link } from "react-router-dom";
 import Loader from '@/components/shared/Loader'
 import { useUserContext } from "@/context/AuthContext";
-import { formatDate } from "@/lib/utils";
+import { multiFormatDateString } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import PostStats from "@/components/shared/PostStats";
 
@@ -39,7 +39,7 @@ const handleDeletePost = () => {
              <div className='flex flex-col'>
                  <p className='base-medium text-light-1 lg:body-bold'>{post?.creator?.name || 'Unknown User'}</p>
               <div className='flex-center gap-2 text-light-3'>
-                  <p className='subtle-semibold lg:small-regular'>{formatDate(post?.$createdAt || '')}</p>
+                  <p className='subtle-semibold lg:small-regular'>{multiFormatDateString(post?.$createdAt || '')}</p>
                   -
                   <p className="subtle-semibold lg:small-regular">{post?.location || 'Unknown Location'}</p>
             
