@@ -58,10 +58,12 @@ const PostCard = ({ post }: {post: PostWithUser}) => {
             
             {/* Display media (image or video) */}
             <div className="flex justify-center mb-4">
-                {post?.imageUrl?.endsWith('.mp4') || post?.imageUrl?.endsWith('.mov') || post?.imageUrl?.endsWith('.avi') || post?.imageUrl?.endsWith('.mkv') || post?.imageUrl?.endsWith('.webm') ? (
+                {post?.imageUrl?.toLowerCase().includes('.mp4') || post?.imageUrl?.toLowerCase().includes('.mov') || post?.imageUrl?.toLowerCase().includes('.avi') || post?.imageUrl?.toLowerCase().includes('.mkv') || post?.imageUrl?.toLowerCase().includes('.webm') ? (
                     <video 
                         src={post.imageUrl} 
                         controls 
+                        autoPlay
+                        loop
                         className="w-full h-auto max-h-96 rounded-lg object-cover"
                     />
                 ) : (
