@@ -58,7 +58,7 @@ Whether you're a casual user sharing life moments or someone building a followin
  
 ### 👤 User Profiles
 - Fully featured profile pages showing:
-  - Profile photo, name, bio
+  - Profile photo, name, username
   - Follower and following counts
   - All posts by that user
 - Edit your own profile at any time
