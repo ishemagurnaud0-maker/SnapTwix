@@ -11,6 +11,8 @@ import { Link,useNavigate } from 'react-router-dom';
 import {useUserContext} from '@/context/AuthContext';
 
 import { useSignInAccount } from '@/lib/react-query/queries&Mutations';
+import { useState } from 'react'
+import { EyeOff, Eye } from 'lucide-react'
 
 const SignInForm = () => {
 
@@ -18,6 +20,11 @@ const SignInForm = () => {
   const navigate = useNavigate();
   const {checkAuthUser} = useUserContext();
   const {mutateAsync: signInUser, isPending:isSigningIn} = useSignInAccount();
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
   
 
   const form = useForm<z.infer<typeof SignInValidation>>({
@@ -30,7 +37,7 @@ const SignInForm = () => {
   })
   
   async function onSubmit(data: z.infer<typeof SignInValidation>) {
-      //CREATE NEW USER 
+      
       
   
     try{
@@ -95,7 +102,13 @@ const SignInForm = () => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" className="shad-input" {...field} />
+                    <div className='relative flex gap-2'>
+                      <Input type={showPassword ? "text" : "password"} className="shad-input" {...field} />
+                      <button className='absolute right-3 top-1/2 transform -translate-y-1/2 px-4' onClick={togglePasswordVisibility}>
+                        {showPassword ? <Eye className='text-light-4 w-5 h-5' /> : <EyeOff  className='text-light-4 w-5 h-5' />}
+                   </button>
+                    </div>
+                    
                   </FormControl>
                   <FormMessage className="text-red-600 text-sm font-medium" />
                 </FormItem>
