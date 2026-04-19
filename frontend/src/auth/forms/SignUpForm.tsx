@@ -52,6 +52,7 @@ const SignUpForm = () => {
         })
       }
       navigate('/sign-in');
+      
         }catch(error){
           toast({
             title: error as string
