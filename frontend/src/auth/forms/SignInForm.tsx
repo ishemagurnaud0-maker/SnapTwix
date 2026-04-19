@@ -14,11 +14,13 @@ import { useSignInAccount } from '@/lib/react-query/queries&Mutations';
 import { useState } from 'react'
 import { EyeOff, Eye } from 'lucide-react'
 
+
 const SignInForm = () => {
 
   const {toast} = useToast();
   const navigate = useNavigate();
   const {checkAuthUser} = useUserContext();
+  const { user } = useUserContext();
   const {mutateAsync: signInUser, isPending:isSigningIn} = useSignInAccount();
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -62,6 +64,7 @@ const SignInForm = () => {
             if(isLoggedIn){
             form.reset();
             navigate('/');
+            toast({title:`Welcome back,${user?.name}`})
           }else{
            return  toast({title:'Sign in failed. Please try again. '});
           }
